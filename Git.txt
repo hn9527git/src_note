@@ -9,10 +9,19 @@ Git连接远程仓库：
 	ssh-keygen -t rsa -C "youremail@example.com" 一路enter默认 不设密码
 	将/home/hn/.ssh/id_rsa.pub内容复制到git account的ssh key
 关联远程仓库：
-	git remote add origin git@github.com:hn9527/learngit.git
-	仓库名为默认为origin 
+	首先执行：
+		git init初始化本地仓库
+		git config --global user.email "hanyanan9527@163.com"
+		git config --global user.name "centos_hn"
+	关联github：git remote add origin git@github.com:hn9527/learngit.git
+	关联码云：  git remote add gitee git@gitee.com:hn9527/HN_STU.git
+centos 下git命令输出乱码解决：
+	git config --global core.quotepath false
+Windows下git bash 不显示中文：
+	git config --global core.quotepath false
 第一次推送所有内容：
 	git push -u origin master
+	git commit -m "some small projects for study linux c++"
 推送至远程仓库：
 	git push origin master
 	可等到有网时一次推送
@@ -26,7 +35,6 @@ Git连接远程仓库：
 	2.关联GitHub   git remote add github git@github.com:hn9527/learngit.git --注意名字改为github
 	3.关联码云       git remote add gitee git@gitee.com:hn9527/learngit.git      --注意名字改为gitee
 	4.推送时注意名字 git push github master 或 git push gitee master
-	
 Git：分布式版本控制系统
 创建版本库：mkdir git_learn
 	cd git_learn
@@ -37,8 +45,6 @@ Git：分布式版本控制系统
 	git commit -m "注释"
 Git当前状态：
 	git status
-Windows下git bash 不显示中文：
-	git config --global core.quotepath false
 查看修改：
 	git diff filename
 丢弃修改：
