@@ -1,0 +1,248 @@
+string操作：
+	set:
+		set name hannannan
+		设置键值对
+	setnx:
+		setnx name hannannan_new
+		如果键已存在返回0，不存在才设置
+	setex:
+		set name 10 zhangdan
+		设置键值对，并指定此键值的有效期为10秒
+	setrange:
+		set name 8 gmail.com
+		将name对应的值的下标为8后的内容替换为gmail.com
+	mset:
+		mset name1 hannan name2 zhangdan name3 tangyuan
+		一次设置多个键值对，失败一个都不设置
+	msetnx:
+		一次设置多个键值对，如果存在返回0，回滚
+	get:
+		get name
+		获取键对应得值
+	getset:
+		getset name new_name
+		返回旧值，设置为新值，再次get返回为新值
+		如果key不存在返回nil
+	getrange:
+		getrange name 0 6
+		返回键对应的值的下标0-6的字符
+		最右边下标-1，超出时，默认为同方向的最大下标
+	mget:
+		一次获取多个键对应的值
+	incr:
+		incr age
+		对键对应得值做++操作，不是int返回错误，key不存在，则设值为1
+	incrby:
+		incrby age 5
+		加指定值
+	decr:
+		--操作
+		key不存在设为-1
+	decrby:
+		减指定值
+	append:
+		append name @163.com
+		字符串追加并返回新字符串的长度
+	setlen:
+		返回指定键的值的长度
+hash操作：
+	hset:
+		设置hash field为指定值，如果key不存在，就先创建
+		hset myhash field1 hello
+	hsetnx:
+		hsetnx myhash field1 hello//如果key存在，返回0失败
+	hmset:
+		hmset myhash field1 hello field2 world
+		同时设置hash的多个field
+	hget:
+		hget myhash field2
+		获取指定的hash field
+	hmget:
+		获取全部指定的hash field
+		hmget myhash field1 field2 filed3
+	hincrby:
+		给指定的hash field加上给定值
+		hincr myhash field3-8
+	hexists:
+		测试指定field是否存在
+		hexists myhash field9
+	hlen:
+		返回指定hash的field数量
+		hlen myhash
+	hdel:
+		删除指定hash的field
+	hkeys:
+		返回hash的所有field
+		hkeys myhash
+	hvals:
+		返回hash的所有value
+		hvals myhash
+	hgetall:
+		获取某个hash中全部的fieldh以及value
+lists操作：
+	lpush:
+		在key对应得list的头部添加字符串元素
+		lpush mylist "world"
+	lrange：
+		lrange mylist 0 -1
+		获取链表中的[所有]内容
+	rpush:
+		在key对应的list的尾部添加字符串元素
+		rpush mylist "hello"
+	linsert:
+		在key对应的list的特定位置之前或之后添加字符串元素
+		linsert mylist before|after "hello" "world"
+	lset:
+		设置list中指定下标的元素值
+		lset list 0 "world"
+	lrem:
+		在key对应的list中删除count个和value相同的元素
+		lrem list [+-]2 "hello"//正的从头开始删除，负的从尾开始删除
+	ltrim:
+		保留指定key的值范围内的数据,不在范围内就删除
+		ltrim list 1 -1
+	lpop:
+		从list的头部删除元素，并返回删除的元素
+		lpop mylist
+	rpop:
+		从list的尾部删除元素，并返回删除元素
+		rpop mylist
+	rpoplpush:
+		从第一个list的尾部移除元素并添加到第二个list的头部，
+		最后返回被移除的元素值
+		原子操作，如果第一个list为空或不存在返回nil
+		rpoplpush list1 list2
+	lindex:
+		返回key的list的index位置的元素
+		lindex mylist 0
+	llen:
+		返回key对应list的长度
+set操作：
+	sadd:
+		添加元素
+		sadd myset "hello"
+	srem:
+		删除名为key的set中的元素
+		srem myset "one"
+	spop:
+		随即返回并删除一个元素
+		spop mylist
+	sdiff:
+		返回所有给定key与第一个key的差集
+		sdiff myset1 myset2
+	sdiffstore:
+		返回所有给定key与第一个key的差集，并存储为另一个key
+		sdiffstore myset1 myset2 myset_diff
+	sinter:
+		返回给定所有key的交集
+		sinter myset1 myset2
+	sinterstore:
+		返回给定所有key的交集,并存储为另一个key
+		sinterstore myset1 myset2 myset_inter
+	sunion:
+		返回给定所有key的并集
+		sunion myset1 myset2
+	sunionstore:
+		返回给定所有key的并集,并存储为另一个key
+		sinterstore myset1 myset2 myset_union
+	smove:
+		从第一个key的set中移除member 并添加到第二个key对应的set中
+		smove myset1 myset2 member
+	scard:
+		返回个数
+		scard myset
+	sismember:
+		测试是否是其元素
+		sismember myset member
+	srandmember:
+		随即返回一个元素，但不删除
+		srandmember myset
+sorted sets操作：
+	zadd:
+		添加元素
+		zadd myzset 1 "one"
+		1用来排顺序
+	zrem:
+		删除
+		zrem myzset one
+	zincrby:
+		如果member存在，则该元素的score增加increment，否则向集合中添加
+		该元素，其score的值为increment
+		zincrby myzset 2 "one"
+	zrank:
+		返回member元素的排名，按score从小到大排序
+		zrank myzset "two"
+	zrevrank:
+		返回从大到小排序的排名
+		zrevrank myzset one
+	zrevrang:
+		返回从大到小排序的index从start到end的所有元素
+		zrevrange myzset 0 -1 withscores
+	zrangebyscore:
+		返回集合中score在给定区间的元素
+		zrangebyscore myzset 2 3 withscores
+	zcount:
+		返回集合中score在给定区间的数量
+		zrange myset 0 -1 withscores
+	zcard:
+		返回集合中元素个数
+		zcard myzset
+	zscore:
+		返回给定元素对应的score
+		zscore myzset one
+	zremrangebyrank:
+		删除集合中排名在给定区间的元素
+		zremrangebyrank myzset 2 2
+	zremrangebyscore:
+		删除集合中score在给定区间的元素
+		zremrangebyscore myzset 1 2
+常用命令：
+	keys:
+		返回满足给定pattern的所有key
+		keys *
+	exists:
+		exists hannan
+		确认一个key是否存在
+	del:
+		删除一个key
+		del hannan
+	expire:
+		设置一个key的过期时间
+		expire adde 10（秒）
+	move:
+		将当前数据库中的key转移到其他数据库中
+	persist:
+		移除给定key的过期时间,使其过期
+		persist hannan
+	randomkey:
+		随机返回key空间的一个key
+	rename:
+		重命名key
+	type:
+		返回值的类型
+服务器相关命令：
+	ping:
+		测试连接是否存活，存活返回PONG
+	echo:
+		打印一些内容
+	select:
+		选择数据库，redis数据库编号从0-15，可以任意选择一个
+	quit:
+		退出连接
+	dbsize:
+		返回当前数据库中key的数目
+	info:
+		获取服务器的信息和统计
+	monitor:
+		实时转储收到的请求
+	config get:
+		config get dir
+	flushdb:
+		删除当前选择数据库中所有的key
+	flushall:
+		删除所有数据库中所有的key
+	
+
+
+
+

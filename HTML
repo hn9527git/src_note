@@ -1,0 +1,213 @@
+中文问题：
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<h1 align="center">居中标题</h1>
+<b>和<strong>都可以用来实现粗体的效果 
+<i>和<em>都可以表示斜体效果 
+<pre></pre>预格式，美化代码显示
+<del>即删除标签 
+<ins>即下划线标签 
+<img width="200" height="200" src="http://how2j.cn/example.gif" alt="不存在"/>图像
+<a href="跳转到的页面地址">超链显示文本</a> 
+<table>标签用于显示一个表格
+<tr> 表示行
+<td> 表示列又叫单元格 
+列表分无序列表和有序列表
+分别用<ul>标签和<ol>标签表示 
+块级元素：
+	div是块元素，即自动换行
+	块级元素默认是占用100%的宽度
+	常见的块元素还有h1,table,p
+内联元素：
+	span是内联元素，即不会换行
+	内联元素的宽度由其内容的宽度决定
+	常见的内联元素还有img,a,b,strong 
+<font color="blue" size="+2">蓝色大2号字体</font>
+<iframe> 即内联框架，浏览器里一个小浏览器 <iframe src="http://how2j.cn/" width="600px" height="400px"></iframe>
+<input type="text" size="200" value="初始值" placeholder="提示"> 即表示文本框 
+<input type="radio" > 表示单选框
+<input type="checkbox" > 表示复选框
+<input type="passwd"  name="activity"> 表示密码框，设置name属性相同则表示只能选一个
+<input type="radio" checked="checked" >默认选中 
+<form method="get" action="http://how2j.cn/study/login.jsp"></form>
+get
+	是form默认的提交方式
+	如果通过一个超链访问某个地址，是get方式
+	如果在地址栏直接输入某个地址，是get方式
+	提交数据会在浏览器显示出来
+	不可以用于提交二进制数据，比如上传文件
+post
+	必须在form上通过 method="post" 显示指定
+	提交数据不会在浏览器显示出来
+	可以用于提交二进制数据，比如上传文件 
+下拉列表，类似于combox
+	<select size="1" multiple="multiple">//size:同时显示几个//multiple:多选
+	<option selected="selected" >老师</option>//selected：默认选中
+	<option >高树</option>
+	<option >遥美</option>
+	</select>
+<textarea cols="30" rows="8"></textarea>文本域
+<input type="button"> 即普通按钮
+<input type="submit"> 即为提交按钮，用于提交form，把数据提交到服务端
+<input type="reset" value="重置">重置表单内容
+<input type="image" > 即使用图像作为按钮进行form的提交 
+--------------CSS---------------------------------------------------------------------
+ id选择器：
+ 	一个元素的id应该是唯一的。另一个元素不应该重复使用
+ 类选择器：
+ 	当需要多个元素，都使用同样的css的时候，就会使用类选择器
+background-image:url(/study/background.jpg);//图片背景
+background-repeat属性值可以选
+	repeat; 水平垂直方向都重复
+	repeat-x; 只有水平方向重复
+	repeat-y; 只有垂直方向重复
+	no-repeat; 无重复
+背景平铺：
+	属性：background-size
+	值：contain 
+对齐：
+	属性:text-align
+	值：left,right,center
+文本修饰：
+	h1 {text-decoration: overline}//上划线
+	h2 {text-decoration: line-through}//删除线
+	h3 {text-decoration: underline}//下划线
+	h4 {text-decoration:blink}//闪烁
+	.a {text-decoration: none}去掉超链接默认的下划线
+行间距：
+	属性：line-height
+	值：数字或者百分比
+字符间距：
+	属性：letter-spacing
+	值： 数字 
+单词间距：
+	属性：word-spacing
+	值： 数字 
+首行缩进：
+	属性：text-indent
+	值： 数字 
+大小写：
+	属性：text-transform
+	值：
+	uppercase 全部大写
+	capitalize 首字母大写
+	lowercase 全部小写 
+空白格：
+	属性：white-space
+	值：
+		normal 默认。多个空白格或者换行符会被合并成一个空白格
+		pre 有多少空白格，显示多少空白格，相当于pre标签,如果长度超出父容器也不会换行。
+		pre-wrap 有多少空白格，显示多少空白格，相当于pre标签,如果长度超出父容器，会换行。
+		nowrap 一直不换行，直到使用br 
+字体风格：
+	font-style:
+	normal 标准字体
+	italic 斜体 
+字体粗细：
+	属性 font-weight
+	normal 标准粗细
+	bold 粗一点 
+font-family:"Times New Roman";//字库
+font:italic bold 30px "Times New Roman";//斜体、加粗、30px、字体
+cursor:设置鼠标样式
+表格布局
+	属性:table-layout
+	automatic; 单元格的大小由td的内容宽度决定
+	fixed; 单元格的大小由td上设置的宽度决定 
+表格边框：
+	属性：border-collapse
+	值：
+	separate:边框分隔
+	collapse:边框合并
+元素内边距
+	指的是元素里的内容与边框之间的距离
+	属性：
+		padding-left: 左内边距
+		padding-right: 右内边距
+		padding-top: 上内边距
+		padding-bottom: 下内边距
+		padding: 上 右 下 左 
+元素外边距
+	指的是元素边框和元素边框之间的距离
+	属性：
+		margin-left: 左外边距
+		margin-right: 右外边距
+		margin-top: 上外边距
+		margin-bottom: 下外边距
+超链状态有4种
+	link - 初始状态，从未被访问过
+	visited - 已访问过
+	hover - 鼠标悬停于超链的上方
+	active - 鼠标左键点击下去，但是尚未弹起的时候 
+隐藏元素：
+	使用display:none; 隐藏一个元素，这个元素将不再占有原空间 “坑” 让出来了
+	使用visibility:hidden;隐藏一个元素，这个元素继续占有原空间，只是“看不见” 
+html包含css文件：
+	<link rel="stylesheet" type="text/css" href="/study/style.css" />或者
+	<link rel="stylesheet" type="text/css" href="file://d:/study/style.css" />
+设置图标：
+	<link rel="shortcut icon" href="images/head.ico">
+优先级：
+	color:green !important;//加上后缀!important则优先级最高
+	内部使用style属性
+	最后设置的属性
+绝对定位：
+	属性：position
+	值： absolute
+	设置了绝对定位的元素，相当于该元素被从原文档中删除了，显示在绝对定位位置
+	不影响其他文档
+	基于最近的一个定位了的父容器
+	如果没有定位了的父容器，那么就相对于body定位
+	定位后会发生掩盖：
+		z-index:12//该属性越大表示放在上面，小表示放在下边
+相对定位：
+	属性：position
+	值： relative
+	与绝对定位不同的是，相对定位不会把该元素从原文档删除掉，而是在原文档的位置的基础上，移动一定的距离 
+浮动：
+	float:left | right;
+	会把坑让出来，在原来的基础上左右浮动，下边的元素会上来，
+	如果下边的元素上来后发现浮动的元素没走，就只好排在它后边
+禁止出现浮动元素：
+	clear:left | right | both | none
+	如果发现左边元素是浮动的，就放在下边，不排在浮动元素的后边
+块级：
+	display:block; 设置表现为块级元素
+	块级元素会自动在前面和后面加上换行，并且在其上的width和height也能够生效
+内联：
+	display:inline; 设置表现为内联元素
+	内联元素前后没有换行，并且在其上的width和height也无效。 其大小由其中的内容决定
+inline-block：
+	需要元素处于同一行，同时还能指定大小，这个时候，就需要用到内联-块级 inline-block
+元素居中：
+	 默认情况下div会占用100%的宽度,所以无法观察元素是否居中
+	 设置本div的宽度，然后再使用样式 margin: 0 auto来使得元素居中
+	 span 是内联元素，无法设置宽度，所以不能通过margin:0 auto居中
+	 span的居中可以通过放置在div中，然后让div text-align实现居中
+自动填满：
+	overflow:hidden;
+垂直居中：
+	line-height 适合单独一行垂直居中
+图片居中：
+	display: table-cell;div使用单元格显示
+	vertical-align: middle;然后使用单元格的垂直居中使得图片居中
+子绝父相：
+	可以让容器内的一块元素固定显示，即使容器改变
+换行书写<span>会导致<span>之间出现空格：
+	1.将其包在div中，使用浮动，就不会出现空格
+	2.下接 <div style="clear:both"></div> 使得后边的元素不会因为span浮动而上来
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

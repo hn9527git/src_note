@@ -1,0 +1,8 @@
+vscode配置
+连接远程linux时：
+	包含头文件路径：/usr/include/**即可
+	**代表遍历该目录下所有文件夹和文件
+vscode的remote连接时不用每次输入密码：
+	cd 本机的用户下.ssh目录
+	生成钥匙(使用git时已经生成过了，可直接上传) ssh-keygen -t rsa -C "youremail@example.com" 一路enter默认 不设密码
+	将id_rsa.pub内容复制到远程主机的~/.ssh下的authorized_keys文件中即可

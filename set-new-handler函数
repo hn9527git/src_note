@@ -1,0 +1,73 @@
+set-new-handler函数
+当内存分配请求不能满足时，调用你预先指定的一个出错处理函数。这个方法基于
+一个常规，即当 operator new 不能满足请求时，会在抛出异常之前调用客户指
+定的一个出错处理函数——一般称为 new-handler 函数。
+
+指定出错处理函数时要用到 set_new_handler 函数，它在头文件<new>里
+大致是象下面这样定义的：
+typedef void (*new_handler)();
+new_handler set_new_handler(new_handler p) throw();
+
+可以看到，new_handler 是一个自定义的函数指针类型，它指向一个没有
+输入参数也没有返回值的函数。 set_new_handler 则是一个输入并返回
+new_handler类型的函数。
+
+set_new_handler 的输入参数是 operator new 分配内存失败时要调用的出
+错处理函数的指针，返回值是 set_new_handler 没调用之前就已经在起作用的
+旧的出错处理函数的指针。
+
+可以象下面这样使用 set_new_handler：
+// function to call if operator new can't allocate enough memory
+void noMoreMemory()
+{
+ cerr << "Unable to satisfy request for memory\n";
+abort();
+}
+int main()
+{
+set_new_handler(noMoreMemory);
+int *pBigDataArray = new int[100000000];
+...
+}
+
+假如 operator new不能为 100,000,000 个整数分配空间，noMoreMemory
+将会被调用，程序发出一条出错信息后终止。这就比简单地让系统内核产生错
+误信息来结束程序要好。
+
+operator new不能满足内存分配请求时，new-handler 函数不只调用一次，
+而是不断重复，直至找到足够的内存。//但例子中直接调用abort退出。
+
+一个设计得好的 new-handler 函数必须实现下面功能中的一种：
+	1.产生更多的可用内存。这将使 operator new下一次分配内存的尝试有可能
+	获得成功。实施这一策略的一个方法是：在程序启动时分配一个大的内存块，
+	然后在第一次调用 new-handler 时释放。释放时伴随着一些对用户的警告信息，
+	如内存数量太少，下次请求可能会失败，除非又有更多的可用空间。
+
+	2.安装另一个不同的 new-handler 函数。如果当前的 new-handler 函数不能
+	产生更多的可用内存，可能它会知道另一个 new-handler 函数可以提供更多的
+	资源。这样的话，当前的 new-handler 可以安装另一个 new-handler 来取代它(通
+	过调用 set_new_handler)。下一次 operator new调用 new-handler 时，会使用
+	最近安装的那个。(这一策略的另一个变通办法是让 new-handler 可以改变它自
+	己的运行行为，那么下次调用时，它将做不同的事。方法是使 new-handler 可
+	以修改那些影响它自身行为的静态或全局数据。)
+
+	3.卸除 new-handler。也就是传递空指针给 set_new_handler。没有安装 new-handler，
+	operator new 分配内存不成功时就会抛出一个标准的 std::bad_alloc
+	类型的异常。
+
+	4.抛出 std::bad_alloc 或从 std::bad_alloc 继承的其他类型的异常。这样的异
+	常不会被 operator new捕捉，所以它们会被送到最初进行内存请求的地方。(抛
+	出别的不同类型的异常会违反 operator new异常规范。规范中的缺省行为是调
+	用abort，所以new-handler要抛出一个异常时，一定要确信它是从std::bad_alloc
+	继承来的。
+
+	5.没有返回。典型做法是调用 abort 或 exit。abort/exit 可以在标准 C/C++ 库中找到
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,10 @@
+kettle 配置oracle连接
+	1、随便打开一个转换
+	2、点击工具-向导-创建数据库连接
+	3、写个名字  选择 oracle  ODBC
+	4、写入地址  端口  和连接串中的/service_id (数据库名称加上反斜杠)
+	5、数据表空间、索引表空间不填
+	5、写入账号密码即可
+kettle保存时中文乱码问题：
+	1、修改spoon.bat  找到set OPT=%OPT% %PENTAHO_DI_JAVA_OPTIONS% 在这后面加上"-Dfile.encoding=UTF-8"
+	2、编辑登录的那个数据库连接，在选项中设置 characterEncoding   UTF-8

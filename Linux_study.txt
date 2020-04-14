@@ -1,0 +1,426 @@
+init 3:退出图形界面并进入字符界面
+init 5:回到图形界面，原来的图形界面的进程已死，而且需要重新登陆
+设置开机默认界面（图形或者字符界面）：vim /etc/inittab 不再使用但写有修改默认级别的方法
+系统级环境变量：/etc/profile
+用户级环境变量：~/.bash_profile
+查看二进制文件：hexdump xxd (od -c a.out//按字节查看)
+选项-I：
+	<>包含搜索顺序：首先在-I指定的路径中搜索所需的头文件，再去默认/usr/local/include中
+		最后去默认/usr/include中搜索
+	""包含搜索顺序：先在当前目录下搜索，再去-I指定的路径中搜索，再去默认/usr/local/include中
+		最后去默认/usr/include中搜索
+-include：在命令行中指定头文件路径
+-l:链接共享库 例如 -lm 即代表链接 libm.so 或 libm.a
+-g:产生可供GDB调试用的可执行文件，稍大，不加则GDB看不见函数名、变量名只有内存地址
+-pg:c=产生可供gprof剖析用的可执行文件，稍大但比-g的小
+mtime:(modify-time)文件内容最后一次改变的时间
+ctime:(change-time)状态(inode节点)修改的时间，包括修改文件内容
+atime:(access-time)最后一读取或执行的时间
+	//ls默认显示时间是创建时间或最近的修改日期
+	//查看文件存取时间atime
+		ls -lu
+	//查看文件修改时间mtime
+		ls -l  默认显示
+	//查看文件inode修改时间ctime
+		ls -lc
+访问文件过程：
+	1.系统通过目录项找到文件名对应的节点号
+	2.通过节点号获取节点信息
+	3.根据节点号信息找到真正存储数据的数据块
+查看文件节点信息：stat 文件名
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+vs2017配置linux的头文件：
+直接将linux下的/usr/include中的文件复制到VS的头文件目录中即可C:\my_app\VS2017\VS_IDE\Common7\IDE\VC\Linux\include\usr\include
+重启vs
+###############################################################################
+man -k name 
+	#可在man page中搜索字符串
+查看文件时搜索：
+	/string ：向下搜索
+	?string ：向上搜索
+	搜索后继续按n ：搜索下一个
+sync 
+	#强制将数据(可能在缓冲区)写入硬盘
+文件相关属性：	
+	d:目录
+	-:文件
+	l:链接
+	b:接口设备
+	c:串行端口设备，例键盘鼠标
+chgrp:
+	chgrp -R hn test.txt
+	修改文件所属群组
+chown:
+	chown -R hn:hn test.txt
+	chown -R hn.hn test.txt
+	chown .zd test.txt//仅修改群组
+	修改文件拥有者，也可以修改群组
+chmod:
+	chmod 777 test.txt//rwx 421
+	chmod u|g|o    +|-|=   r|w|x    test.txt
+	修改文件权限
+权限：
+		  文件 	    目录
+	r 	读取内容   读取目录下各文件名
+	w   修改内容   修改目录下各文件名
+	x   执行文件   进入该目录
+	目录仅有r：不能进入目录，只能看到目录下的文件名，其他看不见，连权限也看不见
+	目录仅有rw:同上，且不能修改
+	目录仅有rx:可以进入目录，能看见文件名，能否修改或执行取决于文件权限
+	目录仅有wx:可以进入目录，看不见文件名，但可以删除文件
+cp:
+	cp -s 软链接(ln -s)
+	cp -l 硬链接(ln)#不支持目录
+文件隐藏属性：
+	chattr [+-=][ASacdistu]文件或目录
+	a:不删不修只能增(root)
+	i:不删不改名不链接不写不增(root)
+显示隐藏属性：
+	lsattr -[adR] 文件或目录
+	-a:隐藏文件也显示
+	-d:只显示本身的属性
+	-R:子目录也显示
+SUID：显示为rws，如果没有x的权限，显示为大写S
+	仅对二进制程序有效
+	执行者对该程序要有x的权限
+	只在执行过程中有效
+	执行过程中具有拥有者的权限
+	chmod a+s file_name
+SGID：显示为rws,如果没有x的权限，显示为大写S
+	对文件：
+		对二进制程序有效
+		执行者对该程序要有x的权限
+		执行过程中拥有该程序群组的支持
+	对目录：
+		具有r和x的权限可以进入此目录
+		用户在此目录下的有效群组将变成该目录的群组
+		用途：若用户在此目录下有w权限，则使用者所建立的新文件，群组为目录的群组
+	chmod g+s file_name
+SBIT：显示为rwt，如果没有x的权限，显示为大写T
+	对目录：
+		当用户对于此目录具有W，X权限，即具有写入权限时：
+			当该用户在该目录下新建文件或目录时，仅有自己与root才能删除
+	chmod o+t file_name
+find:
+	后加指令：find ./ -name a.out -exec ls -l {} \;
+	find [PATH] -name filename //常用
+超级区块：superblock
+	记录此文件系统的整体信息，包括inode/block的总量，
+		使用量，剩余量，以及文件系统的格式和相关信息
+inode://大小固定为128bytes
+	#12个直接，1个间接，一个双间接与一个三间接记录区
+	记录文件的属性，一个文件占用一个iNode，同时记录此文件的数据所在的block的号码
+	以1K block来说明：每个block地址占用4bytes
+	12*1k + 1k*256 + 1k*256*256 + 1k*256*256*256=16GB
+block:
+	实际记录文件的内容，若文件太大会占用多个block
+dd://可读取磁盘扇区表面数据
+	dd if=输入 of=输出 bs=块大小 count=几个块
+观察文件类型：file filename
+搜索文档：whereis 或 locate 或 find(慢)
+/dev/sd[a-p][128] : 实体磁盘文件名
+/dev/vd[a-d][128] : 虚拟磁盘文件名
+硬链接：增加了一个关联数据，指向同一个inode，不会增加inode和block数量，删除一个数据仍然存在
+软连接（类似快捷方式）:建立一个独立的文件，使数据的读取指向它连接的文件名
+压缩与解压缩：
+	gzip 【-v】 filename 生成.gz压缩文件，源文件被删除
+	gzip -d filename.gz 解压缩恢复成源文件
+	bzip2 同上
+	xz 同上
+打包tar:
+	压缩：tar -zcv -f filename.tar.gz filename ...
+	查看包内文件：tar -ztv -f filename.tar.gz
+	解压缩：tar -zxv -f filename.tar.gz 【-C 指定的解压目录】
+	-c:建立打包文件
+	-x:解压缩
+	-z:通过gzip压缩或解压
+	-j:通过bzip2压缩或解压缩
+	-J:通过xz进行压缩或解压缩
+	-v:显示正在处理的文件名
+	-f:后面要直接接被处理的文件名
+	-p:权限不变
+	-P:可以带上根目录 /
+	--exclude=filename :排除此文件
+linux和windows换行格式转换：
+	dos2unix或unix2dos
+转换文本的编码格式：
+	iconv -f [原本编码] -t utf8 filename to new_filename
+
+*************************shell*************************************
+交互：
+	read [-p:接提示字符] [-t:接等待秒数] 【variable】
+声明变量类型：
+ 	declare [-aixr] variable
+ 	[-a]:定义为数组类型
+ 	[-i]:定义为整数类型
+ 	[-x]:设为环境变量 同export,[+x]：取消此环境变量
+ 	[-r]:设为只读
+#:左边最短匹配
+##：左边最长匹配
+%：相反
+%%：相反
+echo ${path/sbin/SBIN}   最先符合替换
+echo ${path//sbin/SBIN}  所有符合替换
+v=${a[:-+=?]b}
+	-  只有a未设置时设置为b
+	:- 只有a为空或未设置时设置为b
+	+  只有a设置了才替换为b
+	:+ 只有a设置为非空才替换为b
+	=  a未设置a和v都为b，a非空不设为b
+	:= a未设置或为空a和v都为b
+	？ a未设置时b输出到stderr
+	:？a未设置或为空时b输出到stderr
+命令别名设置：
+	alias lm='ls -al | more'
+	unalias lm
+命令查找顺序：先找到先执行
+	有路径，相对或绝对
+	alias
+	bash内置
+	$PATH里面先找到的
+login shell读取的配置文件：
+	/etc/profile 	~/.bash_profile或~/.bash_login或~/.profile按顺序读取一个
+source filename:
+	不注销使配置文件生效
+标准输入：< 或 <<【结束的输入字符】
+	cat > catfile << "eof"	,那么输入eof后停止
+标准输出：>【覆盖】 或 >>【累加】
+	标准输入和标准输出可以用-代替：tar -cvf - /home | tar -xvf - -C /temp
+标准错误输出：2>【覆盖】 或 2>>【累加】
+例：将标准错误输出输出到标准输出 2>&1
+截取命令：常用于同一行数据截取
+	cut -[d] '分隔字符' -f 【输出分隔后的第n段,...】
+	cut -c [第几个字符后的字符或n-m]
+分析一行数据：
+	grep -v [反向输出] '搜寻的字符串' filename
+	-c 计算搜寻到的次数
+	-i 忽略大小写
+	-n 输出行号
+排序命令：
+	sort so much that i want not to record
+	wc [-l:行] [-w:字(单词数)] [-m:字符] [-c:字节数]
+	uniq [-c:计数] filename  //相同数据只显示一条
+双向重导向：tee
+	可以将数据同时分送到文件和屏幕
+	cat test | tee [-a:追加] test.copy
+分区：
+	split //将文件按要求切片
+	-b szie:输出N个大小为size字节的文件//将文件分切完
+	-l；指定行数
+	-c:指定每行的字节数
+参数代换：xargs
+	-n 每次传给命令参数个数
+	-p 每次询问是否执行
+	-e'xxxx' 查到xxxx就结束该指令串
+	cut -d ':' -f  1 /etc/passwd | xargs -n 1 id
+通配符：只是bash操作接口的一个功能，而
+正则表达式：是一种处理字符串的表示方式
+	grep -[i:忽略大小写][v:反向][n:行号] '搜寻字符串' filename
+	egrep更严谨
+sed工具：
+	nl /etc/passwd | sed '2,5d'  //打印时删除2-5行
+格式化打印 
+	print '格式' filename
+awk工具：
+	分段处理数据
+文件对比工具：
+	diff -[b:忽略空白差异][B:忽略空白行][i:忽略大小写]   from_file   to_file
+	cmp
+	patch
+文件打印准备
+	pr filename
+账号管理：
+添加次要群组：
+	usermod [-a -G] docker zd
+查看支持群组：
+	groups	//第一个为有效群组
+有效群组得切换：
+	newgrp [要设为有效群组得名]	//本用户必须已经在该群组内才可以
+新增和移除用户：
+	useradd [-u UID] [-g 初始群组] [-G 次要群组] 账号名
+	[-c:说明] [-d:指定家目录路径]
+useradd默认：
+	useradd -D 	//查看默认值
+	vim /etc/default/useradd 	//修改默认值
+密码：
+	passwd  username , change
+修改用户：
+	usermod [-cdagG] username
+	基本同useradd,但-a和-G需要组合使用才能添加支持群组
+删除用户：
+	userdel [-r:删除用户目录] username
+finger:
+	类似指纹，显示基本信息
+	chfn //交互输入修改信息
+新增与移除群组：
+	groupadd [-g:指定gid] [-r:创建为系统群组] 群组名
+	groupmod [-g:修改gid] [-n new_group_name] 旧群组名
+	groupdel 群组名
+群组管理员：
+	groupadd 群组名//新建群组
+	gpasswd -A 某个用户 群组名//赋予管理权限
+	该用户即可管理该群组，-a 添加用户到群组 -d 相反
+ACL：//主机详细权限规划
+	setfacl [-bkRd] [-m|-x] [acl参数] 目标文件名
+	b 删除所有的acl设置参数
+	k 删除默认的acl设置参数
+	R 递归设置该目录下所有文件
+	d 只对目录有效
+	m 设置后面的参数给文件
+	x 删除后面的参数对文件
+  针对单一用户：
+  	setfacl -m u:用户列表:rwx 文件名
+  查看acl权限：
+  	getfacl filename
+  针对单一用户组：
+  	setfacl -m g:用户组列表:rwx 文件名
+  有效权限设置mask：
+  	setfacl -m:rwx filename
+  查看acl权限时有mask栏，其值与设定值相与才是有效权限，一般可以将mask设置为rwx
+  设置目录下未来文件的acl权限继承
+  	setfacl -m d:u:用户列表:rwx filename
+用户身份切换：
+ 	su直接切换为root，读取的变量设置方式是非登陆shell的方式，这种方式很多变量不会修改
+ 	su -切换为root，是以登陆shell方式
+ 	完整切换用户的环境，必须使用su - username 或 su -l username
+ 	sudo [-u 用户] 命令 //以该用户身份执行该命令
+ 	修改/etc/sudoers可以设置用户能否使用sudo
+ 	visudo //使用此命令修改该文件
+ 	1.username ALL=(ALL)		//权力等同于root
+ 	2.加入wheel组		//免密码使用sudo
+ 	3.username ALL=(root) ！/usr/bin/passwd，！/usr/bin/passwd root,/usr/bin/passwd [a-zA-Z]*, 	//仅可以修改其他用户的密码
+/*
+  输入用户密码转换root	//防止root密码泄露//2019/7/9测试行不通
+  	visudo
+  	user_alias ADMINS=user1,user2,...
+  	ADMINS ALL =(root) /bin/su -	//这样用户输入自己的密码就可以切换为root
+*/
+用户：
+	w 	who 	last 	lastlog
+-------------------------------------------------------------------------
+例行性工作排程：
+  at:仅执行一次
+	/etc/at.allow中的账户才能使用at
+	/etc/at.deny中的账户不能使用at
+	都不存在只有root可以使用
+	范例：at now + 5 minutes
+		> /bin/mail -s "testing at" root < /root/.bashrc
+		ctrl + d
+	查看at工作：at -c [job号码]
+	让at通知是否执行了指令：at -m 时间格式
+	查询所有at工作：atq
+	删除某个工作：atrm job号码
+	batch：在CPU工作负载小于0.8时执行at的job
+  crontab:循环执行
+  	/etc/cron.allow功能同上
+  	/etc/cron.deny功能同上
+  	工作记录在/var/spool/cron/dmtsai，执行的每一项工作记录到/var/spool/cron
+  	crontab [-u username] [-l|-e|-r]
+  	添加：
+  		vim /etc/crontab
+ -------------------------------------------------------------------------
+ 放到后台执行：
+ 	cat file > cat.file &
+ 查看job：
+ 	jobs
+ 将背景工作拿到前景处理：
+ 	fg
+ 让已停止工作在背景下继续运行：
+ 	bg
+管理背景下的工作：
+	kill 【同kill用法】 %【job_id】
+脱机管理：
+	以远程连接Linux主机，断开后，背景工作会被中断掉
+不被中断方法：
+	使用at;
+	使用nohup;
+查看信号：
+	man 7 signal
+kill:
+	kill -signal pid
+	killall -l 指令名称//常用于删除某个服务，所启进程全部删除
+调整优先级：//不绝对影响优先级，最后看系统分析
+	nice
+	范围： -20至19
+	一般使用者仅可以加大nice值
+	使用：
+		执行时给予一个特定的nice值，nice -n [5] ps
+		调整某个已经存在的PID的nice值，renice [6] PID
+观察内存：
+	free -h
+查看系统核心相关信息：
+	uname -a
+查看系统启动时间和工作负载：
+	uptime
+追踪网络或插槽文件：
+	netstat -t[TCP] -u[UDP] -n[端口] -l[listen] -p[PID]
+分析核心产生的讯息：
+	dmesg
+侦测系统资源变化：
+	vmstat
+由文件找出正在使用该文件的进程
+	fuser -uv file_name
+列出被进程所开启的文件档名
+	lsof [-u hn]
+找出某支正在执行的程序的PID：
+	pidof 
+Tarball软件：
+	解压后通常含有：
+	· 源代码文件
+	· 侦测程序文件(可能是configure或config等)
+	· 本软件的简易说明和安装说明
+软件安装：
+	· 直接用原始码来编译安装或升级
+	· 直接以编译好的二进制程序来安装(yum\dpkg\apt)
+安装流程：
+	1.下载
+	2.解压
+	3.gcc编译
+	4.gcc链接，形成二进制文件
+	5.将二进制文件以及相关配置文件安装到自己的主机上
+主程序呼叫另一个子程序
+	1.各个程序先编译.o文件
+	2.在将各个.o文件链接成一个可执行文件
+编译时加入额外函数库连接的方式：
+	gcc math.c -lm -L/lib -L/lib64
+	//包含头文件后，gcc会主动抓取相关的函数库，此处为示例
+	//-l:加入某个函数库的意思
+	//m:指libm.so  lib与.a或.so都不用写
+	//-L后指定搜索目录
+	//-I：指定头文件搜索目录
+函式库管理：
+静态函式库：
+	扩展名：.a
+	编译行为：直接整合到执行程序中
+	独立执行状态：可以独立执行
+	升级：若有改动，相关程序都要重新编译	
+动态函式库：
+	扩展名：.so
+	编译行为：在程序中只有一个位置指针
+	独立执行状态：不能被独立执行
+	升级：自己编译即可，相关程序不需编译
+yum:
+	yum -y install 安装软件
+	yum remove 移除软件
+	yum grouplist 安装软件群组
+SHELL会话：
+	login shell：
+		读取/etc/profile 
+			~/.bash_profile 
+			前一个不存在时：~/.bash_login 
+			前一个不存在时：~/.profile
+	non-login shell：
+		读取/etc/bash.bashrc
+			~/.bashrc
+		继承父类进程的环境
+
+
+
+
+
+
+
+
+
+
+

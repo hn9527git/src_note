@@ -1,0 +1,109 @@
+
+-----------------------------线程-------------------------------------------------------------------
+创建线程不对进程拷贝，和进程共用所有资源
+线程和进程不分离
+pthread_create()创建线程
+编译时加上 -pthread
+如果创建线程的进程结束了，所有线程都结束
+将创建线程的进程称之为主线程
+如果一个进程没有创建线程，即可以称为进程，也可以成为线程
+cpu最小的调度单位为线程
+避免资源竞争问题之线程同步
+1.线程锁》》互斥量》》原子操作》》不能被打断
+2.信号量;将所有共享数据资源数据化，使用资源前检查信号量的值，大于零表示有资源可用
+等于零表示没有资源可用，则阻塞等待
+线程结束：exit是结束进程的函数，如果在线程中调用exit会把
+进程和所有的线程都结束；最好不要在线程中调用
+1，pthread_exit（）结束本线程，对其他线程没有影响
+2，pthread_cancel（）结束指定线程，接收到结束请求的线程会终止运行
+在处理重要数据时可以设置为不接受结束请求（阻塞），pthread_setcancelstate，
+等待线程结束pthread_join()，也可以设置分离线程，由系统回收线程资源；
+线程有两种状态，joinable和unjoinable
+前者：线程退出时不会释放所占用的堆栈和线程描述符，只有调用pthread_join()函数才会释放
+后者：在线程创建时或创建后调用，改为unjoinable状态，线程退出时自动释放所占资源。
+分离线程：
+	线程默认是非分离的，父线程会维护子线程的某些信息并等待子线程的结束，如果父线程没有调用pthread_wait函数，
+		子进程结束时，父线程维护的信息没有及时释放，如果创建多个子线程，可能堆栈空间不足出错返回
+	分离函数：
+	int pthread_detach(id)；
+//	4/2/2019	
+特点：
+	创建线程比创建进程的系统开销低
+	线程之间的通信简单快速
+	响应快
+	改善程序结构
+	使多处理系统更加有效
+线程标识符
+	获取自身标识符：pthread_self()
+	比较标识符：pthread_equal(1,2)
+创建线程：
+	int pthread_create(pthread_t * id,pthread_attr_t * attr,void *(*start_routine)(void *),void * arg);
+	-- id:传入即可，创建成功则把标识符放进去
+	-- attr:设置属性
+	-- start_routine:线程开始运行的函数，用户指定
+	-- arg:第三个函数所需的参数
+线程阻塞和退出：
+	int pthread_join(pthread_t thread,void ** retval);//阻塞等待线程退出
+	-- thread：要等待的线程id
+	-- retval:保存其他线程返回的参数
+	void pthread_exit(void * retval);//线程主动退出
+取消和清理线程：
+	int pthread_cancle(id);//请求取消同一进程中的其他线程，返回0，失败返回错误码
+	调用此函数取消了一个线程后，应该调用函数对线程退出之后的环境进行清理(线程清理处理程序)
+	viod pthread_cleanup_push(void (*routine)(void *),void * arg);
+	void pthread_cleanup_pop(int execute);
+
+	
+------------------------线程同步机制-----------------------------------------------------------------
+互斥量或条件变量或临界区
+互斥锁：
+	原子性：操作系统保证如果一个线程锁定了一个互斥锁，没有其他线程可以在同一时间成功锁定这个互斥锁
+	唯一性：在一个线程锁定互斥锁后，在它解除锁定之前没有其他线程可以锁定这个互斥量
+	非繁忙等待：如果一个线程锁定了一个互斥锁，第二个线程又试图去锁定，则第二个线程将被挂起直到第一个线程
+		解除锁定，第二个线程才被唤醒同时锁定这个互斥锁
+	互斥锁初始化函数：
+		int pthread_mutex_init(pthread_mutex_t *mutex,const pthread_mutex_attr *attr);
+	互斥锁解除函数：
+		int pthread_mutex_destory(pthread_mutex_t *mutex);
+	互斥锁加锁函数：
+		int pthread_mutex_trylock(pthread_mutex_t * mutex);//不阻塞，失败返回错误
+		int pthread_mutex_lock(pthread_mutex_t *mutex);//阻塞等待资源解锁
+	互斥解锁函数：
+		int pthread_mutex_unlock(pthread_mutex_t *mutex);//调用本函数的线程必须是给互斥锁加锁的同一个线程
+条件变量：
+	互斥锁只有两种状态，条件变量是对互斥锁的补充，它允许线程阻塞并等待另一个线程发送的信号，当收到信号时，
+		阻塞的线程就被唤醒并试图锁定这个与之相关的互斥锁
+	条件变量初始化：
+		int pthread_cond_init(pthread_cond_t *cond,const pthread_cond_attr *attr);
+	条件变量解除函数：
+		int pthread _cond_destory(pthread_cond_t *cond);
+		清除cond指向的条件变量的任何状态，存储条件变量的内存空间不释放
+	条件变量阻塞函数:
+		int pthread_cond_wait(pthread_cond_t *cond,pthread_mutex_t *mutex);
+临界区：
+	获取临界区的锁称之为进入临界区，把锁的释放称之为离开临界区
+	与互斥锁和条件变量的不同：前两个在系统的任何进程都是可见的，而临界区的
+		的作用范围仅限于本进程，其他进程无法获取该锁
+
+可重入函数：
+	一个函数没有执行完成，有一次进入该函数执行
+	可重入表示该函数被重入之后不会产生任何不良后果，可在多线程环境下放心使用
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

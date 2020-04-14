@@ -1,0 +1,323 @@
+SQL在处理OR操作符前，优先处理AND操作符，可以加括号强制修改处理顺序
+通配符：
+	% 任意字符出现任意次数
+	_ 单个字符
+	select * from tab1 where bumen like '2%';
+正则表达式：
+	使用REGEXP关键字
+	. 匹配任意一个字符
+	a|b 匹配a或b
+	[0-9a-z] 匹配括号中的任意一个字符
+	[^abc] 不得匹配括号中的任意一个字符
+	\\【特殊字符】 匹配特殊字符需要加转义符
+	* 0或多个匹配
+	+ 1或多个匹配
+	？ 0或1个匹配
+	{n}  指定数目匹配
+	{n,} 不少于n的匹配
+	{n,m} 匹配数目的范围
+	^ 开始
+	$ 结尾
+	SELECT name FROM table_name WHERE name REGEXP '^st';//查询以st开头的name的记录
+连接:
+	concat()
+去除空格：
+	去两边：trim()
+	去左边：Ltrim()
+	去右边：Rtrim()
+常用：
+	upper()				//大写
+	left(“wocao”,2)		//左边子串
+	length()			//长度
+	locate("oc","wocao")//返回第一个str在第二个str中第一次出现的位置
+	lower()				//小写
+	substring(filed,m,n)//截取filed字段从第m个字符开始到n的字符串；
+union从查询结果集中自动去除了重复的行 （不去除：union all）
+union只能使用一种order by语句，不能一部分一种排序方式
+
+插入：
+	insert [low_priority] into:降低插入的优先级
+	insert into tab (a,b...) values (1,2...),(3,4...);//此方式提高性能
+	insert into tab (a,b...) select (a,b...) from tab2;//插入检索出来的数据
+更新：
+	update [ignore] tab set a='1' where id=6;//ignore更新多行时使其发生错误也不回滚
+删除：
+	delete from tab where id=9;//按行删除数据
+	truncate table tab;//删除所有数据，表结构还在
+	drop table tab;//删除数据和表结构，彻底删除
+重命名：
+	rename table tab to tab2,[tab3 to tab4]...;
+自动增长：
+	获取最后一个auto_increment的值：select last_insert_id();
+innodb：
+	是一个可靠的事务处理引擎，不支持全文本搜索
+memory：
+	在功能等同于myisam，输出存储在内存中，速度很快
+myisam：
+	是一个性能极高的引擎，支持全文本搜索，不支持事务处理
+跨引擎：
+	引擎可以跨用，但外键不能
+更新表结构：
+	alter table tab [add 字段 类型] [drop column 字段]
+	常用来定义外键：[add constraint 外键名 foreign key (字段名) references tab2(字段)]
+视图：包含使用时动态检索数据的查询
+	作用：重用SQL，简化SQL，保护表的组成部分，保护数据【给视图权限，不给表权限】，更改表现形式
+	创建：create view name as select...;
+	可以但不应该对视图进行更新，实际上是对基表增加或删除行
+！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+MYSQL索引
+	优点：提高查询效率，不必查询所有数据，节约查询时间，降低CPU消耗
+	缺点：占用空间，降低更新表的速度
+分类：
+	单值，唯一，复合||全文(myisam)，空间(myisam)
+创建：
+	--声明主键时，自动创建唯一索引
+	create index 索引名称 on table(columu,...);
+删除：
+	drop index 索引名称 on table;
+explain:
+	explain select 语句;
+索引方法：
+	innodb只支持BTREE，不支持HASH
+￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥
+新增用户：
+	create user user_name identified by '密码';
+查看用户权限：
+	show grants for user_name;
+设置新密码：
+	set password for user_name = password('新密码');	
+------------------存储过程-----------------------------------------------------------------------------------------------
+	一组可编程的函数，是为了完成特定功能的SQL语句集
+	完成特定功能，保存在数据字典中
+特点：
+	批量处理，统一接口
+delimiter //（任意符号） 
+	修改语句提交符号
+例：
+	delimiter //
+	create procedure cc_name()
+	BEGIN
+	--sql语句
+	END//
+	delimiter ;
+使用：
+	call name();//注意需要加上括号
+查看：
+	show procedure status WHERE DB="my_db_name";
+	show create procedure cc_name;
+删除：
+	drop procedure cc_name;//没有括号
+声明变量：
+	delimiter //
+	create procedure cc_name()
+	BEGIN
+	--声明变量
+	declare res1,res2 varchar(255) default "0";
+	--变量赋值
+	set res1=3;
+	select avg(salary) into res2 from table_name;
+	END//
+	delimiter ;	
+存储过程参数：
+	in | out | inout
+	delimiter //
+	create procedure get_name(in name varchar(255),out salary int)
+	BEGIN
+	select salary into salary from table_name where ename=name;
+	END//
+	delimiter ;
+参数使用：
+	call get_name('luban',@s);
+	select @s from DUAL(虚拟表，无表可用可以用这个，也可以不用);
+-----------------------------------------------------------------------
+自定义函数：
+	delimiter //
+	create function f_name(n int) returns varchar(255)
+	BEGIN
+	declare str varchar(100) default 'a-zA-Z';
+	declare i int default 0;
+	declare res_str varchar(255) default '';
+	while i<n do
+	set res_str=concat(res_str,substr('floor(rand()*52+1)',1,1));
+	set i=i+1;
+	end while
+	return res_str;
+	END//
+插入千万条数据例：
+	delimiter //
+	create procedure insert_emp(in start_num int,in max_num int)
+	begin
+	declare i int default 0;
+	set autocommit=0;--不让自动提交SQL语句
+	repeat
+	set i=i+1;
+	insert into emp values(start_num+i,f_name(6),floor(10+rand()*30));
+	until i=max_num
+	end repeat;
+	commit;-- 提交所有SQL语句，提高效率
+	end//
+	delimiter ;
+调用：
+	call insert_emp(100,10000000);--本机运行了两个小时-……-
+------------游标---------------------------------------------------------------------
+游标：
+	可以在检索出来的结果集中上下移动，游标只能用于存储过程和函数
+创建游标：
+	create procedure cc()
+	begin
+		declare youbiao cursor
+		for
+		select order_num from orders;
+	end;
+打开和关闭游标：
+	open youbiao;
+	close youbiao;
+	如果不明确关闭游标，那么在执行到end时自动关闭
+使用游标：
+	打开游标后可以使用FETCH xx into 变量;//自动从第一个开始
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+触发器：只有表支持，视图和临时表等不支持
+	响应DELETE\INSERT\UPDATE任意语句时自动执行的一条sql语句或位于begin和end之间的一组语句
+创建触发器：
+	CREATE TRIGGER new_cfq AFTER INSERT ON products FOR EACH ROW SELECT 'product added';
+数量有限制：
+	每个表每个事件每次只允许一个触发器，所以一个表最多六个触发器（after 或 before）
+	并且before触发器失败，将不执行请求的操作
+删除触发器：
+	drop trigger new_cfq;
+使用：
+  INSERT触发器：
+	1.insert触发器内，引用一个名为new的虚拟表，访问要插入的数据
+	2.before insert中，new中的值可以被更改
+	3.对于auto_increment值，insert执行之前new中为0，执行之后为新的自动增长值
+  DELETE触发器：
+	1.内，可以引用一个名为OLD的虚拟表，访问要被删除的行。
+	2.OLD中的值只读，不能更新
+  UPDATE触发器：
+  	1.内，引用OLD虚拟表访问更新前的值，引用NEW虚拟表访问更新的值
+  	2.在before update触发器中，new可以被更改
+  	3.OLD的值只读，不能更新
+############################################################################################
+事务：
+	A：原子性	
+	C：一致性
+	I：隔离性
+	D：持久性
+例：
+	start transaction://开始事务
+	update a set x=x-2000;//实际没变
+	update b set y=y+2000;//实际没变
+	commit;//事务结束，实际修改
+--rollback--
+	start transaction;
+	update a set x=x-2000;//实际没变
+	update b set y=y+2000;//实际没变
+	rollback//撤回事务所有操作，事务自动关闭
+  可以回退的sql：INSERT\UPDATE\DELETE,不能回退create和drop操作
+使用保留点：
+	为了支持回退部分事务处理
+创建保留点占位符：
+	create delete1;//事务处理完成自动释放
+回退到某个保留点：
+	ROLLBACK TO delete1;
+--事务并发问题--
+		  查看事务隔离级别：（select @@tx_isolation;）8.0版本(select @@transaction_isolation;)
+	读未提交（read uncommit）：一个会话查到另一个会话的未提交事务所作的修改
+			也称为脏读。
+	不可重复读（read commit）:一个事务要等到另一个事务提交后才能读到
+			也称为提交读。两次同样的查询，可能有不一样的结果。
+	重复读（repeatable read）：Mysql默认事务隔离级别
+			同一事务内多次读到的数据一致
+			解决了脏读，理论无法解决幻读，但可通过MVCC解决(间隙锁)。
+	串行化（serializable）:不常用，解决幻读。最高级别，加行级锁，消耗资源大。
+设置事务隔离级别：
+	SET TRANSACTION ISOLATION LEVEL 事务隔离级别名；
+	仅当前会话：SET SESSION TRANSACTION ISOLATION LEVEL 级别名；
+事务日志：
+	存储引擎再修改表数据时只需要修改其内存拷贝，再将记录持久到硬盘上的事务日志中，
+	然后内存中被修改的数据可以在后台慢慢刷回磁盘。称为预写式日志。
+	中途崩溃，存储引擎重启时自动恢复。
+查看是否自动提交：
+	SHOW VARIABLES LIKE 'AUTOCOMMIT';
+设置不自动提交：
+	set autocommit=0;
+	MySQL默认每一条查询当作一个事务自动提交。Oracle不自动提交
+￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥
+视图：
+	是一个虚拟表，内容由查询定义，简单来说，就是由select结果构成的表。
+	安全，查询性能提高，提高了数据的独立性
+例:
+	create view view_name as (select语句);
+使用
+	select * from view_name;
+修改
+	create or replace view view_name as (select 语句)；
+删除
+	drop view view_name;
+详细语句：
+	create algorithm={undefined|merge|temptable} view view_name
+	as (select语句) 
+	with {cascaded|local|check option};
+替换式:复合查询
+具化式：先处理视图，结果集存在内存中，再处理SQL语句；
+merge：属于替换式，修改视图可以直接修改基表中的数据
+temptable:属于具化式，由于数据存在临时表中，不可以进行更新操作
+undefined：没有定义该参数，mysql倾向于替换式，因为更有效
+with check option:更新数据时不能插入不符合视图限制条件的记录
+视图不可更改部分：不是来源于基表的数据就不能修改
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+并发控制：
+	共享锁(读锁):共享的，相互不阻塞。
+	排它锁(写锁)：排他的，一个会阻塞其他的写锁和读锁
+	表锁：锁定整张表，写操作阻塞其他用户，读锁不相互阻塞
+	行级锁：存储引擎层实现。
+死锁：
+	两个或多个事务在同一资源上相互占用，并请求锁定对方占用的资源。
+	例：数据冲突：多个事务以不同顺序锁定同一资源时，多个事务同时锁定同一资源时。
+		存储引擎的实现方式也可能导致死锁。
+	解决方案:1.检测返错2.超时放弃(不太好)。
+	InnoDB处理死锁：将持有最少行级排他锁的事务进行回滚，然后重新执行。
+MVCC：多版本并发控制----此处仅指InnoDB的MVCC
+	可以认为是行级锁的一个变种，很多情况下避免加锁操作，使开销更低。
+	通过保存数据在某个时间点的快照来实现的，不管需要执行多长时间，每个事务看到的数据一致。
+	乐观(optimistic)并发控制：
+	悲观(pessimistic)并发控制：
+	InnoDB的MVCC：
+		通过记录后面保存两个隐藏的列来实现的，一个保存行创建时间，一个保存行过期时间。
+		时间指的是系统版本号，每开一个新事务，此号自动递增。
+	默认隔离级别下MVCC的操作过程：
+		SELECT:
+			1.InnoDB只查找版本早于当前事务的数据行，这样可以确保事务读取的行，
+				要么是在事务开始前已经存在，要么是事务自身插入或修改过的。
+			2.行的删除版本要么未定义，要么大于当前事务版本号，这样可以确定
+				事务读取到的行是在事务开始之前未被删除。
+		INSERT：
+			InnoDB为新插入的每一行保存当前系统版本号作为行版本号。
+		DELETE:
+			InnoDB为新删除的每一行保存当前系统版本号作为行删除版本号。
+		UPDATE：
+			InnoDB为插入一行新纪录保存当前版本号作为行版本号，同时保存当前系统版本号到
+			原来的行作为行删除标识。
+	优点：这样设计使得大多数读操作不用加锁，读数据操作简单，性能很好。
+	不足：需要额外的存储空间，更多的行检查，额外的维护工作。
+MyISAM存储引擎：
+	不支持事务和行级锁，崩溃后无法安全修复。
+	加锁与并发：对整张表加锁，读加共享锁，写加排他锁，读查询时可并发插入。
+全文本搜索（myisam支持innodb不支持）：FULLTEXT(字段名)
+	select 字段名 from tab where natch(字段名) against('搜寻的字符串');
+	扩展查询：增加显示相关的行在against('搜寻的字符串'' with query expansion)
+	布尔模式：不需要设定FULLTEXT也可以使用
+		against('搜寻字符串 -ro*' in boolean mode);//包含搜寻字符串不包含ro开头的字符串
+
+
+
+
+
+
+
+
+
+
+
+
+

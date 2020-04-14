@@ -1,0 +1,861 @@
+JDBC相关插入数据库乱码问题：
+	数据库设置表的编码为utf8
+	设置url参数：jdbc:mysql:///hn?useUnicode=true&characterEncoding=utf-8&rewriteBatchedStatements=true&useSSL=false
+运行卡慢问题：
+	修改配置文件中的xms和xmx数值
+问题：
+	1.java ee下创建包时显示不在src下问题
+		F5刷新就好了
+spring配置文件xml时直接提示类路径设置(默认需要alt+/):
+	 依次点开菜单 ‘XML -> XMLFiles -> Editor -> Content Assist
+	 1. 把Auto activation delay(ms):改为0
+	 2. 在Prompt when these characters are inserted输入框内增加一个英文的点
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+JVM：
+	java虚拟平台
+	由指令集、寄存器、垃圾处理器、方法区域组成
+	三种区域：
+		局部变量区域
+		执行环境区域
+		操作数区域
+	包：
+		本质是文件夹的形式，用于组织项目文件
+		将比较接近的类规划在同一个包下
+		可直接访问同一个包内的类
+		不同包的类访问要先import
+	jre:Java Runtime Environment
+		java运行环境//JVM+类库
+	JDK:Java Development Kit
+		java开发套件//jre+开发工具
+			javac.exe:编译工具
+			java.exe:运行工具
+			jar.exe：打包工具
+			javadoc.exe:生成帮助文档工具
+			。。。
+JVM内存划分：
+	方法区：又叫静态区，存放所有class字节码文件和方法、常量、static变量，存放程序中永远唯一的元素
+	JVM栈：每调用一个函数就创建一个栈帧，并加入虚拟机栈
+	本地方法区(栈)：类似虚拟机栈(为java代码方法服务)，但是为Native方法服务
+	堆：jvm启动时就创建好堆，使用new在堆上开辟空间
+	程序计数器：记录当前执行到那个指令，可以看作字节码行号指示器
+垃圾回收：
+	只能回收new出来的资源，同时提供finalize()方法，声明为protected，用户可以
+	在自己的类中定义这个方法，垃圾回收时会首先调用这个方法，在下一次垃圾回收时，才真正回收被对象占用的内存
+	继承时，需要确保子类的finalize()方法最后调用了父类的finalize()方法
+	主动调用垃圾回收：
+		System.gc();
+		//判断对象是否死亡，不是根据是否还有对象对其有引用，而是通过可达性分析
+		对象之间的引用可以抽象成树形结构，通过树根作为起点，向下搜索，走过的链
+		称为引用链，当一个对象到起点没有任何引用链相连时，则这个对象是不可用的，
+		判定为可回收对象
+工作流程：
+	java源文件：.java//若类为public则文件名必须为class名称
+		编译后
+	字节码文件：.class//文件名为class名称
+		类装载器装载到JVM
+	JVM解释给操作系统：
+		操作系统执行
+安装：
+	1.安装JDK
+	2.配置环境变量
+		JAVA_HOME 安装路径\jdk1.7.0.67\
+		PATH      安装路径\jdk1.7.0.67\bin\
+		CLASSPATH .   //1.5版本以后不用配置了，本来是用于查找字节码文件.class，默认为当前文件
+	验证：
+		cmd:java 
+			javac 
+			java -version//三个命令都不出错则成功
+流程：
+	1.编写.java源文件
+	2.编译
+		进入所在目录 javac helloworld.java
+	3.运行： 
+		java helloworld
+文档注释：
+	/** 注释信息允许嵌入程序，可以使用javadoc工具来提取这些信息形成帮助文档 */
+ecilpse：
+	布局恢复：右击右上角java点击reset就好了
+项目文件结构：
+	src:存放源文件
+	bin:存放编译后得字节码文件
+	.classpath:配置文件
+	.project:配置文件
+更改字体大小：
+	window--preferences--general--appearance--colors and fonts--basic--text font
+代码提示：
+	window-preferences-editor-content-assist-auto...for java中填入abcdefghijklmnopqrstuvwxyz.
+八大基本类型：
+	整形四种：
+		byte占用一个字节8位
+		short两个字节16位
+		int四个字节32位
+		long八个字节64位，如果数值大于int最大值或小于int最小值则需要在数值后加上l
+	字符型一种：
+		char占用两个字节，采用unicode编码，支持中文
+	浮点型两种：
+		float:四个字节32位，默认带小数点的都是double，若需要指定为float 则在数值后加上f
+		double:八个字节64位
+	布尔类型一种：
+		boolean,只能用true和falase
+定义常量：
+	final int a;类似const但可以先定义后赋值(仅一次)
+	static声明类变量：执行默认初始化
+	实例变量：同上
+	局部变量：不初始化不能用
+	数组：int a[];或int[] a;
+			a=new int[5];
+		或int[] b={1,2,3,4,5};
+	复制数组：
+		1.使用for循环
+		2.System.arraycopy(a,beginPos,b,beginpos,length);
+	引用数据类型：
+		类、接口、数组、枚举、注解
+	在嵌套作用域中不能重复定义局部变量
+	//基本数据类型在堆中有初始值0，在栈中没有不能用
+	//引用基本类型有两块存储空间，一个在栈中(堆中地址)，一个在堆中(具体值)
+Array工具类：
+	Array.copyOfRange(a,0,3);//3表示结束位置，取不到
+	Array.toString(a);
+	Array.sort(a);-->Array.binarySearch(a,6);//必须先排序，在查找
+	Array.equals(a,b);
+	Array.fill(a,5);//全是5
+六种存储空间：
+	寄存器
+	栈
+	堆
+	静态存储区
+	常量存储区：final、static
+	其他存储区
+java引用：
+	如果一个变量的类型是类类型，而非基本类型，那么该变量又叫做引用
+匿名对象：
+	创建一个对象，没有把它赋值给任何一个变量
+	new Dog().name="wocao";
+	//一般作为方法实参传递
+继承：java单继承，但可以实现多个接口
+	extends
+静态导入：
+	把其他包里的内容在本类中使用，不需要使用类名调用，直接使用别的包里边的方法。
+	import static 类的全限定名.该类中的static成员名
+	实际开发中不适用，分不清一个静态方法或字段来源于哪一个类
+访问修饰符：
+									当前类	同包子类	不同包子类    同包类	 其他包类
+						    public:	  访问	  继承         继承        访问        访问
+						 protected:	  访问	  继承	  	   继承    	   访问      不可访问
+						   private:	  访问  不可继承     不可继承    不可访问    不可访问
+默认(package/friendly/default不写):   访问    继承       不可继承      访问	     不可访问        
+类方法：
+	又叫静态方法，具有static声明
+	不需要对象的存在就可以访问
+对象方法：
+	又叫实例方法，非静态方法，有对象了才能访问
+规定:
+	不能将方法体内的局部变量声明为static
+构造器：类似C++构造函数
+	互相调用：//在本构造器中又调用其他的构造器
+		要写在本构造器内的第一行，并且使用this关键字
+		this(args);//自动调用参数匹配的构造器
+对象比较：
+	==：比较是否是同一个对象
+	equals:比较对象内容是否相同
+重载：
+	相同作用域，函数名相同，参数不同
+重写：也叫覆盖，子类覆盖父类的对象方法
+	子类中将父类的成员方法的名称保留，重写成员方法的实现内容，可更改存储权限，修改返回值类型
+	重写父类方法时，修改方法的修饰权限只能从小到大的范围改变。
+隐藏：子类覆盖父类的类方法，即静态方法
+	
+重构：
+	子类与父类的成员方法返回值、方法名称、参数类型和个数完全相同，只有方法实现内容不同
+	属于一种特殊的重写
+单例模式：
+	1. 构造方法私有化
+	2. 静态属性指向实例
+	3. public static的 getInstance方法，返回第二步的静态属性
+	饿汉式：//直接创建单例对象等待使用
+	懒汉式：//需要时才创建对象
+包装类：//java不能定义基本类型对象，为了以面向对象使用基本类型，java提供了包装类
+	对基本数据类型进行包装，将其包装成一个对象，使其变得更强大，可以使用面向对象的方法使用
+	装箱：
+		不需要调用构造函数，通过=符号自动把 基本类型 转换为 类类型 
+	拆箱：
+		不需要调用Integer的intValue方法，通过=自动把类类型转换成int类型
+	int a=10;Integer num = new Integer(a);//装箱操作
+	int num2 = num.intValue();//拆箱操作
+	Integer i=20;//自动装箱
+	int j=num2;//自动拆箱
+包装类valueof缓存设计：
+	当值在-128到127之间的值会缓存，超过范围直接new新对象
+数字转字符串：int i=10;
+	方法一：
+		String str = String.valueof(i);
+	方法二：
+		Integer it = i;
+		String str = it.toString();
+包装类转字符串：
+	String str=i.toString();
+基本数据类型转字符串：
+	int a=10;String str=a+"";
+字符串转数字：
+	int i3=Integer.parseInt(str3);
+基本数据类型和包装类区别：
+	1.默认值：0	null
+	2.包装类中提供了很多方法直接给我们使用
+	3.集合框架不能存放基本数据类型，只能存对象
+换行符：
+	java为了跨平台，使用%n代表换行符
+抽象方法：//类似C++纯虚函数
+	在方法前边加一个关键字abstract
+	1.没有方法体
+	2.抽象方法必须定义在抽象类中（类名前加abstract）
+	3.子类必须覆盖该抽象方法
+	4.抽象方法不能是私有的，不能使用final修饰，不能同时使用static
+	5.抽象类可以没有抽象方法(也无法直接实例化)，但抽象方法所在类必须是抽象类
+抽象类：
+	1.不能创建抽象类的对象
+	2.子类若不覆盖抽象方法，就得把自己也变成抽象类
+	3.构造方法不能定义为私有的
+	4.抽象类不能使用final修饰
+接口：为什么要有接口？因为java不支持多继承，有了接口，需要接口中的方法的类实现接口，而且可以继承多个接口
+	1.表示一种规范
+	2.具有对应的字节码
+	3.其实是一种特殊的抽象类
+	4.接口里的方法默认是public abstract的，可以不写------------------------------------
+	5.接口没有构造器，不能创建对象
+	6.接口中可以定义变量，默认是全局的静态常量public static final,可以不写-------------
+	7.接口可以定义内部类，也是public abstract
+	8.接口可以多继承，但java类不能多继承
+	9.实现接口的类可以把对象声明为接口(父类)对象，属于多态
+	定义：interface 接口名{}
+	implements//声明类时同时声明使用接口
+	public class ADHero extends Hero implements AD{
+		public void ad_attack()//此处必须加上public
+		{
+			...
+		}
+	}
+	10.默认方法，JDK8使接口不仅能提供抽象方法，还可以增加有方法体的默认方法
+		default public void hello(){...;}//使得现有实现了接口的类不需要改动就拥有了这个接口的默认方法
+接口和抽象类的异同：
+	1.都是被其它类继承实现
+	2.都不能实例化
+	3.都可以定义抽象方法，子类必须覆盖该抽象方法
+	不同：
+		1.接口没有构造器，抽象类有构造器
+		2.接口只能有抽象方法，抽象类还可以有普通方法 
+		3.接口中默认成员变量为public static final，抽象类默认权限
+		4.接口方法默认public abstract，抽象类默认权限
+抽象类和接口区别：
+	区别1：
+		子类只能继承一个抽象类，不能继承多个
+		子类可以实现多个接口
+	区别2：
+		抽象类可以定义
+		public,protected,package,private
+		静态和非静态属性
+		final和非final属性
+		但是接口中声明的属性，只能是public、静态、final的，即便没有显式的声明
+面向接口编程：
+	把实现类的对象赋值给接口类型的变量
+	属于多态：屏蔽了不同类之间实现差异，从而达到通用编程
+枚举：
+	enum WeekDay{
+		MONDAY,TUESDAY,...;
+	}
+	不能直接创建(new)枚举对象
+对象转型：
+	子类可以当父类使用
+	父类转子类不一定行，需要强转
+	类转换为接口是可以的
+	判断是否是某类型：
+		a instanceof ADHero
+重写：
+	子类可以继承父类的对象方法
+	在继承后，重复提供该方法，就叫做方法的重写
+	又叫覆盖 override 
+	字类使用父类被重写的方法：
+		super.方法
+隐藏：
+	就是子类覆盖父类的类方法(static)
+覆盖：
+	子类覆盖父类的方法
+	1.方法名和参数相同
+	2.返回值类型一样
+	3.覆盖的方法访问权限必须比父类的方法的访问权限大或一样大
+多态：
+	字段不存在多态，相同则隐藏
+	方法才有多态，相同为覆盖
+Object类:
+	它是所有类的父类
+	==;不是Object类方法，用于判断两个引用是否指向相同对象
+	具有
+		toString()方法
+		finalize()//类似C++析构函数，当对象没有任何引用调用的时候，由JVM自动调用
+		equals();//判断两个对象是否相同
+		hashCode();//返回一个对象的哈希值
+		线程同步相关方法：
+			wait()
+			notify()
+			notifyAll()
+		getClass();//返回一个对象的类对象
+代码块：
+	局部代码块：在方法中定义
+	初始化代码块：在类中定义，运行时还是放在了构造器中
+	静态代码块：在初始化代码块前加static关键子，加载字节码时自动调用
+				在主方法之前，只调用一次
+				应放在其他属性之后
+final:
+	修饰类时：
+		表示类不能被继承，且类中所有方法都被隐式设置为final，但类中的成员变量可以被定义为final或非final形式
+	修饰方法时：
+		表示方法不能被重写
+	修饰基本变量时：
+		表示该变量只有一次赋值机会
+	修饰引用时：
+		表示该引用只有一次指向对象的机会
+	修饰常量时：
+		公开直接访问且值不会改变  public static final int a=6;
+内部类：
+	定义在类中的类
+	1.增强封装性，内部类隐藏在外部类中，不允许其他类访问这个类
+	2.增强了代码可维护性
+	3.内部类可以直接访问外部类中的成员
+	分为四种：
+		1.非静态内部类：类前无修饰符，属于对象的内部类，不能有静态成员
+			·使用必须先创建外部类对象
+			·外部类不能直接访问内部类成员
+			·内部类直接存取所在类的私有成员变量
+			·非静态内部类 = new 外部类().new 内部类() 或外部类已创建为a
+			·非静态内部类 = a.new 内部类()
+		2.静态内部类：static，属于类的内部类
+			·可以直接使用，不需要创建外部类对象
+			·在静态内部类中没有外部类引用
+			·可以访问外部类的静态成员，但不能直接访问外部类的普通变量
+				可以使用（new Out().name）通过创建对象间接访问
+			·可以定义static成员，也可以定义非静态成员
+			·静态内部类 = new 外部类.静态内部类();
+		3.局部内部类：定义在方法内
+			·只能在方法内使用
+			·不能使用public、private...
+			·不能包含静态变量
+			·可以包含局部变量，使用局部变量的本质是final
+		4.匿名内部类：属于局部内部的一种特殊情况
+			·没有构造器
+			·可以使用父类的构造器或接口//必须有父类或实现了接口
+			·只使用一次时使用
+			·b.work(new IUSB(){public void dataswap(){...}});
+	匿名类：声明一个类的同时实例化它
+		     Hero h = new Hero(){
+            //当场实现attack方法
+            public void attack() {
+                System.out.println("新的进攻手段");
+            }
+            在匿名类中使用外部的局部变量，外部的局部变量必须修饰为final
+	本地类：本地类和匿名类一样，直接声明在代码块里面，可以是主方法，for循环里等等地方 
+			只是比匿名类多一个名字
+格式化输出：
+	//使用格式化输出
+    //%s表示字符串，%d表示数字,%n表示换行(保证平台无关性)
+    String sentenceFormat ="%s 在进行了连续 %d 次击杀后，获得了 %s 的称号%n";
+        //使用printf格式化输出
+        System.out.printf(sentenceFormat,name,kill,title);
+        //使用format格式化输出
+        System.out.format(sentenceFormat,name,kill,title);
+immutable:
+	不可改变的//类似C++mutable的反义词或静态常量
+操纵字符串：
+	charAt 	
+		获取字符	
+	toCharArray 	
+		获取对应的字符数组	
+	subString 	
+		截取子字符串
+	split(",") 	
+		分隔	
+	trim 	
+		去掉首尾空格	
+	toLowerCase
+	toUpperCase 	
+		大小写	
+	indexOf
+		字符或子字符串首次出现的位置
+	lastIndexOf
+		字符或子字符串最后出现的位置
+	contains("str") 	
+		是否包含str
+	replaceAll("a","A")
+		将所有的a替换为大写
+	replaceFirst 	
+		只替换第一个 
+字符串对比
+	startsWith("ab") //以...开始
+	endsWith("the") //以...结束
+StringBuffer
+	是可变长的字符串
+	append delete insert reverse 	
+	  追加  删除   插入   反转
+	length capacity 	
+	  长度  容量 
+异常：
+	try{}
+	catch{}
+	finally{}//无论是否出现异常该段代码都会执行
+		但在以下四种情况不会:
+			1.finally语句发生了异常
+			2.在前面的代码中使用了System.exit()退出程序
+			3.程序所在的线程死亡
+			4.关闭CPU
+	若本函数不想处理某异常，可以声明抛出该异常
+	void func throws FileNotFoundException{};//由该函数调用者处理该异常
+	一个方法被覆盖时，覆盖它的方法必须抛出相同的异常或异常的子类
+	如果父类抛出多个异常，则覆盖方法必须抛出那些异常的一个子集，不能抛出新异常。
+throw和throws的区别：
+	1. throws 出现在方法声明上，而throw通常都出现在方法体内。
+	2. throws 表示出现异常的一种可能性，并不一定会发生这些异常；
+	   throw则是抛出了异常，执行throw则一定抛出了某个异常对象。
+异常分类：
+	1.可查异常：
+		CheckedException
+		可查异常即必须进行处理的异常，要么try catch住,要么往外抛，谁调用，谁处理，比如 FileNotFoundException
+		如果不处理，编译器就不让你通过 
+	2.运行时异常：
+		不是必须进行try catch的异常
+		常见运行时异常:
+			除数不能为0异常:ArithmeticException
+			下标越界异常:ArrayIndexOutOfBoundsException
+			空指针异常:NullPointerException 
+	3.错误：
+		指的是系统级别的异常，通常是内存用光了
+		在默认设置下，一般java程序启动的时候，最大可以使用16m的内存
+		如例不停的给StringBuffer追加字符，很快就把内存使用光了。抛出OutOfMemoryError
+		与运行时异常一样，错误也是不要求强制捕捉的 
+异常继承树：
+	Throwable
+		Error:
+			VirtualMachineErroe
+				StackOverflowError
+				OutOfMemoryError
+			AWTError
+		Exception
+			RuntimeException
+				ArithmeticException
+				NullPointerException
+				IndexOutOfBoundsException
+			IOException
+				EOFException
+				FileNotFoundException
+流继承树：
+	流：//使用完需要关闭，标准关闭应写在finally块中，也可以写在try-with-resource中，退出时自动关闭
+		字节流(InputStream、OutputStream)//抽象基类
+			文件字节流：继承字节流抽象基类
+				FileInputStream //fis.read(all)，将输入流对应文件数据读到all数组中
+				FileOutputStream//fos.write(data),将data数组中数据写到输出流对应文件中
+		字符流(Reader、Writer)//抽象基类，专门用于字符形式的读取和写入
+			FileReader、FileWriter//不能手动设置编码
+			InputStreamReader、OutputStreamWriter  //可以手动设置编码
+			缓存流//继承于字符流
+				缓存字符输入流：BufferReader//readline()可以一次读取一行数据
+				缓存字符输出流：PrintWriter//println("ads")一次写一行
+		数据流：
+			DataInputStream(FileInputStream) 数据输入流//相互读写，因为这种流写的时候有特殊标记
+			DataOutputStream(FileOutputStream) 数据输出流// 
+		对象流：
+			一个对象以流的形式进行传输，叫做序列化。 该对象所对应的类，必须是实现Serializable接口
+			ObjectOutputStream(FileOutputStream)//writeObject(h)输出对象
+	流刷新：
+		flush();//强制写硬盘
+流对比：
+	字节流：读写到byte数组中   read       write
+	字符流：读写到char数组中   read       write
+	缓存流：读写到String中     readline   println
+	数据流：读写到类型或string readInt  readUTF    writeInt writeUTF
+	
+try-with-resources:
+	//JDK7开始支持
+	//把流定义在try()里,try,catch或者finally结束的时候，会自动关闭
+    try (FileInputStream fis = new FileInputStream(f)) {
+        byte[] all = new byte[(int) f.length()];
+        fis.read(all);
+        for (byte b : all) {
+            System.out.println(b);
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+反射机制：
+	可以在程序中访问已经装载到JVM中的Java对象的描述，实现访问、检测
+	修改描述Java对象本身信息的功能
+ArrayList://实现了list接口
+	类似C++中的vector
+	ArrayList.add()
+	contains 	
+		判断是否存在	
+	get 	
+		获取指定位置的对象	
+	indexOf 	
+		获取对象所处的位置	
+	remove 	
+		删除
+	set 	
+		替换	
+	size 	
+		获取大小	
+	toArray 	
+		转换为数组
+	addAll 	
+		把另一个容器所有对象都加进来
+	clear 
+		清空
+// 创建基于文件的输入流
+	File f = new File("d:/lol.txt");
+    FileInputStream fis = new FileInputStream(f);
+LinkedList://
+	不仅实现了list接口，
+	还实现了双向链表结构Deque//头尾插入数据
+		LinkedList<Hero> ll =new LinkedList<Hero>();
+		ll.addFirst(new Hero("hero1"));//removeFirst//取出会导致删除
+		ll.addLast(new Hero("hero2"));//removeLast//取出会导致删除
+	进而实现了队列Queue//FIFO
+		Queue<Hero> q= new LinkedList<Hero>();
+		q.offer(new Hero("hero1"));//在最后添加元素
+		q.poll();//取出第一个元素
+		q.peek();//把第一个拿出来看看，但是不取出
+HashMap:
+	HashMap<int,Hero> heroMap=new HashMap<int,Hero>();
+	heroMap.put(1,new Hero("盖伦");//添加键值对，键不能相同，值可以
+HashMap和Hashtable
+	相同：
+		都实现了Map接口，都是键值对保存数据的方式
+	区别1：
+		HashMap可以存放 null
+		Hashtable不能存放null
+	区别2：
+		HashMap不是线程安全的类
+		Hashtable是线程安全的类
+几中set比较：
+	HashSet： 无序
+	LinkedHashSet： 按照插入顺序
+	TreeSet： 从小到大排序 
+对象比较器：
+	因为sort时不知道按那个属性排序，所以可以实现Compare<Hero>接口
+	实现其中的compareTO(Hero another)方法
+	或者提前写一个比较函数：
+	//引入Comparator，指定比较的算法
+        Comparator<Hero> c = new Comparator<Hero>() {
+            @Override
+            public int compare(Hero h1, Hero h2) {
+                //按照hp进行排序
+                if(h1.hp>=h2.hp)
+                    return 1;  //正数表示h1比h2要大
+                else
+                    return -1;
+            }
+    };
+HashSet:
+	没有顺序，也不是插入顺序
+	HashSet<String> names = new HashSet<String>();
+    names.add("gareen");//添加元素.值不能相同
+    遍历使用迭代器或增强型for循环
+    内部由HashMap实现,每个元素是一个键，值是一个静态的对象。
+Collection：//是一个接口
+	Collections是一个工具类
+	Collections.reverse(List<>);
+	reverse 		  反转	
+	shuffle 		  混淆
+	sort 			  排序
+	swap 			  交换
+	rotate 			  滚动
+	synchronizedList  线程安全化 
+泛型：
+	不指定泛型的容器，可以存放任何类型的元素
+	指定了泛型的容器，只能存放指定类型的元素及其子类	
+		ArrayList<Hero> h = new ArrayList<Hero>();
+	ArrayList heroList<? extends Hero> 表示这是一个Hero泛型或者其子类泛型
+		heroList 的泛型可能是Hero
+		heroList 的泛型可能是APHero
+		heroList 的泛型可能是ADHero
+		所以 可以确凿的是，从heroList取出来的对象，一定是可以转型成Hero的
+	ArrayList heroList<? super Hero> 表示这是一个Hero泛型或者其父类泛型
+		heroList的泛型可能是Hero
+		heroList的泛型可能是Object
+	如果希望只取出，不插入，就使用? extends Hero
+	如果希望只插入，不取出，就使用? super Hero
+	子类泛型不能转换为父类泛型//
+Lambda:
+	((参数h) ->h.hp>100&&h.demage<50); 
+聚合操作：
+	heros
+        	.stream()
+        	.filter(h -> h.hp>100&&h.damage<50)
+        	.forEach(h -> System.out.println(h.name));
+    数组没有stream方法解决：Array.stream(a)或者Stream.of(a);
+   	中间操作：//都返回stream
+   		对元素进行筛选：
+			filter 匹配
+			distinct 去除重复(根据equals判断)
+			sorted 自然排序
+			sorted(Comparator<T>) 指定排序
+			limit 保留
+			skip 忽略
+		转换为其他形式的流
+			mapToDouble 转换为double的流
+			map 转换为任意类型的流 
+	结束操作：
+		forEach() 遍历每个元素
+		toArray() 转换为数组
+		min(Comparator<T>) 取最小的元素
+		max(Comparator<T>) 取最大的元素
+		count() 总数
+		findFirst() 第一个元素 
+创建多线程的三种方法：
+	1.继承Thread类//写一个run方法，使用start启动线程
+	2.实现Runnable接口//写一个run方法，new Thread(类).start
+	3.匿名类方式//在类中实现run方法
+synchronized：
+	如果一个类，其方法都是有synchronized修饰的，那么该类就叫做线程安全的类
+唯二基一的地方：
+	查询结果集ResultSet按照字段顺序获取值时是基一的
+	预编译查询PreparedStatement设置？的值时是基一的
+Statement和PreparedStatement的对比：
+	Statement执行10次，需要10次把SQL语句传输到数据库端
+    	数据库要对每一次来的SQL语句进行编译处理
+    PreparedStatement每次执行，只需要传输参数到数据库端
+        1. 网络传输量比Statement更小
+        2. 数据库不需要再进行编译，响应更快
+execute与executeUpdate的区别 
+	相同点：都可以执行增加，删除，修改 
+	不同1：
+		execute可以执行查询语句
+		然后通过getResultSet，把结果集取出来
+		executeUpdate不能执行查询语句
+	不同2:
+		execute返回boolean类型，true表示执行的是查询语句，false表示执行的是insert,delete,update等等
+		executeUpdate返回的是int，表示有多少条数据受到了影响 
+获取自增长ID：
+	PreparedStatement ps=conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+	ResultSet rs=ps.getGeneratedKeys();
+使用事务：
+	conn.setAutoCommit(false);
+	//执行事务
+	conn.commit();//提交，要么都成功，要么都失败
+获取类对象：//三种方法
+	Class.forName()
+	Hero.class
+	new Hero().getClass()
+	//一个JVM中，只会有一个类对象存在。
+	获取类对象时，会执行类的静态代码块
+反射：
+	1.获取类对象Class czz=Class.forName("Hero");
+	2.通过类对象的各种方法可以创建对象
+		//构造器
+            Constructor c= pClass.getConstructor();
+        //通过构造器实例化
+            Hero h2= (Hero) c.newInstance();
+    3.通过类对象修改属性的值
+    	Hero h=new Hero();
+    	//获取类Hero的名字叫做name的字段
+            Field f1= h.getClass().getDeclaredField("name");
+        //修改这个字段的值
+            f1.set(h, "teemo");
+    4.通过类对象获取方法后调用
+    	//获取h方法名为setName,参数为String的方法
+    		Method m=h.getClass().getMethod("setName",String.class);
+    	//对h对象调用这个方法
+    		m.invoke(h,"盖伦");
+    用处：可以将类名和方法写在文本中，在程序中读取后反射出对象和方法
+    	可以简单地修改文本，然后再运行程序，不需要修改程序（spring基本原理）
+getField和getDeclaredField的区别
+	这两个方法都是用于获取字段
+	getField 只能获取public的，包括从父类继承来的字段。
+	getDeclaredField 可以获取本类所有的字段，包括private的，但是不能获取继承来的字段。 (注：
+	 这里只能获取到private的字段，但并不能访问该private字段的值,除非加上setAccessible(true)) 
+注解：
+	@Override 用在方法上，表示这个方法重写了父类的方法
+	@Deprecated 表示这个方法已经过期，不建议开发者使用。(暗示在将来某个不确定的版本，就有可能会取消掉)
+	@SuppressWarnings Suppress英文的意思是抑制的意思，这个注解的用处是忽略警告信息
+	@SafeVarargs 当使用可变数量的参数的时候，而参数的类型又是泛型T的话，就会出现警告。 这个时候，就使用@SafeVarargs来去掉这个警告
+	@FunctionalInterface这是Java1.8 新增的注解，用于约定函数式接口。
+	函数式接口概念： 如果接口中只有一个抽象方法（可以包含多个默认方法或多个static方法），该接口称为函数式接口。
+				     函数式接口其存在的意义，主要是配合Lambda表达式 来使用。
+JDBC相关插入数据库乱码问题：
+	数据库设置表的编码为utf8
+	设置url参数：jdbc:mysql:///hn?useUnicode=true&characterEncoding=utf-8&rewriteBatchedStatements=true&useSSL=false
+JDBC:
+	数据库连接：
+		1.加载数据库注册驱动
+		2.连接数据库
+		3.操作
+		4.释放资源
+	Statement接口：用来执行静态SQL语句
+		PreparedStatement:预编译语句
+			？-- setXXX ---从1开始
+			executQuery:执行查询
+			executeUpdate:执行更新、插入、修改
+		查看sql：
+			((JDBC4PreparedStatement)ps).asSql();
+	返回值：
+		1.对于DQL返回查询的结果集
+		2.对于DML返回受影响的行数
+		3.对于DML返回0
+	executeUpdate(String):执行DML和DDL
+	查询操作：
+		ResultSet:保存查询结果集
+		next():判断结果集中是否有下一行数据，有就向下移动一行指针
+		getInt(1):获取当前行中的第几列
+		getString("name"):获取当前行指定列名的值//类型是varchar/char/text
+		getInt("id"):类型是integet/int时使用
+	DAO:Date Access Object//数据存取对象
+		位于逻辑层和持久化数据层之间
+		实现对持久化数据的访问
+		不需要每个地方都要连接数据库，只需要调用DAO即可
+		DAO提供各种操作数据库的方法
+	ORM://对象关系映射
+		//将每一条记录当作一个对象
+		定义一个类(对应一个表)，一个字段对应一个类的属性
+	domain:
+			符合JavaBean规范的类//每个属性有getter和setter方法
+			一般是一个ORM类加上JavaBean规范
+		作用：用户与数据库交互的核心中转站
+	使用例：
+		  1.创建DAO对象
+		  2.使用domain类包裹数据
+		  3.调用DAO的save方法保存domain中的数据到数据库
+单元测试：
+	@Test
+	直接测试单个函数的机制
+sql注入：
+	login("'OR 1=1 OR'","123456789");//sql拼接方式可能被恶意注入
+数据库连接池：
+	数据源就是连接池的别名
+	属性：
+		连接四要素：驱动、地址、用户名、密码
+		初始化链接数
+		最大最小链接数
+		最大空闲时间：最大占用但不用时间
+		最大等待时间：连接超时
+	使用：
+		DBCP:Spring推荐、Tomcat使用
+		C3P0:不更新了
+		Druid:(德鲁伊)阿里巴巴提供，号称最好的连接池
+B/S：
+	基于浏览器，业务层交给服务器完成，客户端仅仅做界面的渲染和数据的交换
+	只开发服务器端，跨平台、移植性好
+	安全性低，用户体验较差
+	Html、Css、Js
+C/S：
+	服务器主要就是一个数据库，业务逻辑交给客户端完成
+	较为安全，用户界面丰富，用户体验好
+	每次升级都要重新安装，区分操作系统，可移植性差
+web资源：
+	动态网页：数据固定写死
+	静态网页：用程序产生的，不同时间看到的不同
+web服务器：
+	安装了web软件的电脑
+	提供给外界端口访问web资源
+	三层：
+		Web层：
+			jsp+servlet
+			Struts2
+			springMVC
+		Service层:
+			Spring
+		Dao层:
+			JDBC
+			DBUtils
+			Hibernate
+			Mybatis
+常见的几个域：
+	PageContext：整个JSP页面
+	ServletRequest：整个请求链，转发也存在
+	Session：整个会话
+	ServletContext；整个Web应用
+url：
+	协议://(域名)主机地址:端口号/资源
+	//默认端口：80
+HTTP协议：
+	请求：
+		发送：
+			在浏览器地址栏输入地址
+			在form表单中添加action属性
+			在a标签中添加herf属性
+			img的src属性
+		结构：
+			请求行
+			请求头
+			请求体
+		方式：
+			get
+			post
+	响应：
+		状态码：2成功2转接4资源错误5代码错误
+Maven:
+	作用：
+		相同的项目结构
+		统一维护jar包
+常见的JavaWeb应用服务器：
+	weblogic：oracle公司大型收费服务器，支持全部ee规范
+	websphere:IBM公司的大型web服务器，支持全部ee规范
+	Tomcat:Apache开源web服务器 满足ee的servlet和jsp规范
+	webapps:web应用发布目录
+	work:处理jsp的工作目录
+加速Tomcat:
+	删除webapps目录下多余文件
+	在web.xml中修改为3.0，
+		并加上<absolute-ordering="true"/>//设置不扫描jar包
+发布详解：
+	server.xml
+	一个服务对应一个<Context>
+	docBase:服务名地址不写路径时使用Tomcat默认路径//可自己配置
+	path:浏览器访问时输入地址//可自己配置
+	reloadble:字节码改变自动重新加载web应用
+	修改为默认端口：
+	65行8080-->80//不用写端口号了
+servlet:
+	运行在服务端的java小程序，是sun公司提供的一套规范接口
+	用来处理客户端请求，响应给浏览器的动态资源
+	通过javaAPI动态地向客户端输出内容
+	不需要main函数，因为字节码放在服务器上，当前发送一个请求的时候，服务器就会按照一定规则调用
+反射：
+	类要使用时：
+		加载--连接--初始化
+	加载时机：
+		创建实例时
+		访问类的静态变量或为静态变量赋值
+		调用类的静态方法
+		初始化某个类的子类
+		使用反射方式来强制创建某个类或接口对应的java.lang.class对象
+	类加载器：//classloader
+		负责将.calss文件加载到内存中，并为之生成对应的Class对象
+		分类：
+			根类加载器：又名引导类加载器，负责java核心类的加载
+		扩展类加载器：
+			负责jre的扩展目录中jar包的加载
+		系统类加载器：
+			负责在JVM启动时加载来自java命令的class文件以及classpath环境变量指定的jar包和类路径
+	内省：
+		在运行时能够获取JavaBean当中的属性名称和get和set方法
+	反射：
+		在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法
+		对于任意对象，都能调用它的任意一个方法和属性
+		动态获取信息以及调用对象的方法的功能成为java语言的反射机制
+静态资源加载流程：
+	在自己的web.xml中找，有就加载对应的servlet
+	没有就找自己的缺省url-patten，还没有去
+	全局的web.xml中找，找不到就找缺省
+	找到默认default//肯定有
+	然后去找项目下所有文件看是否有对应名称的静态资源
+	有就把里面的内容逐行读取，响应给浏览器
+
+
+
+
+
+
+
+
+
+
+
+
+
+

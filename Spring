@@ -1,0 +1,260 @@
+spring配置读取db.properties文件失败问题：
+	db.properties中配置的各个属性需要加一个前缀，如jdbc.url=jdbc:mysql://127.0.0.1:3306/hn
+		否则报无法获取数据库连接错误
+	db.properties可以放在资源文件夹下，配置路径时无需添加资源文件夹名称，spring自动截取
+——————————————————————————————————
+普通创建过程：
+	新建动态web项目
+	导入spring的基础四个包beans\context\core\expression
+	导入日志包：com.springsource.org.apache.commons.logging-1.1.1，com.springsource.org.apache.log4j-1.2.15（老版本需要）
+	创建需要的bean类，并提供getter和setter方法
+	创建配置文件(位置随意名称随意)(一般在src下，命名为applicationContext.xml)，
+	导入约束（难受）:
+			第一次配置约束文件：windows--preferences-搜索catalog element--add fileSystem--选择最新的spring的bean约束
+				key为约束全路径，location为约束父目录路径，key type选Schema location
+			下次：直接选择第一次配置好的
+			设置约束：
+				先写<beans></beans>--选择design视图，右击beans选择edit namespaces--add xsi文件--add 选择specify new namespaces 
+					选择browse--选择select XML Catalog entry--找到之前配置的约束--OK--复制约束父文件类路径到namespace name--
+					--导入成功！！！
+	将对象交给spring
+	代码测试
+Spring
+	1.IOC //反转控制
+		底层原理：xml配置文件、dom4j解析、工厂设计模式、反射
+		步骤：创建xml配置文件<bean id="user" class="com.hn.User">
+			  创建工厂类，使用dom4j解析配置文件+反射
+			  		根据id值，得到对应class属性值
+			  		使用反射创建类对象，Class clzz=Class.forName(class属性值);
+			  							User u=clzz.newInstance();return u;
+	使用：
+		1.导入jar包
+		2.创建类，在类里边创建方法
+		3.创建配置文件 配置创建的类//建议配置文件放在src下，引入约束
+		4.测试
+	2.DI //依赖注入
+		实现IOC需要DI支持
+		注入：1.使用set方法注入
+			  2.构造方法注入
+			  3.字段注入
+		注入类型：
+			值类型注入，八大基本数据类型
+			引用类型注入，将依赖对象注入
+applicationContext & BeanFactory
+	BeanFactory:spring的最原始接口，对象在使用时才真正创建(上古时期硬件资源紧张)
+	applicationContext：现在用的接口，容器启动时就创建所有配置的对象，直接拿就可用
+		从类路径加载配置文件：ClassPathXmlApplicationContext("applicationContext.xml");
+		从硬盘绝对路径加载配置文件：一般不用	FileSystemXmlApplicationContext("C:////xml");
+spring创建对象的方式：
+	1.空参构造，直接使用bean的无参构造
+	2.静态工厂，直接调用工厂类的类方法创建需要的对象
+	3.实例工厂，需要先创建工厂对象，再使用工厂对象的对象方法创建需要的对象
+scope属性：
+	1.singleton：默认值，表示单例对象(容器启动时创建)，spring容器中只会存在一个对象
+	2.prototype：多例，(获取时创建)每次获取对象都是new的不同的对象
+	3.request：web环境下，对象的生命周期与request一致。不用
+	4.session：web环境下，对象的生命周期与session一致。不用
+	经测试：直接获取对象是单例的
+			但new的是新的对象
+生命周期属性：
+	init-method="init"
+		配置一个初始方法，作为生命周期初始化方法：spring会在对象创建之后立即调用
+	destroy-method="destory"
+		配置一个销毁方法，spring关闭并销毁容器中所有对象之前调用该方法
+spring的分模块配置：
+	在主配置文件引入其他配置文件
+		<import resource="配置文件路径"/>
+属性注入：
+	1.set方法注入
+		值类型注入：<property name="name" value="hn"></property>
+		对象类型注入：首先将对象配置到文件中<bean name="car" class="com.hn.bean.Car">，
+					  然后在需要该对象的对象中配置该对象，并使用ref属性配置值
+					<property name="car" ref="car"></property>
+	2.构造函数注入
+		<constructor-arg name="name" value="wocao" index="0" type="String"></constructor-arg>
+		name:设置构造函数参数名
+		value:设置该参数的值
+		index:设置该参数的在参数列中的下标，进一步定位使用哪个构造函数
+		type:设置该参数的类型，最终决定定位使用哪个构造函数//例如int和Integer是有区别的
+	3.p名称空间注入
+		首先导入p空间约束：xmlns:p="http://www.springframework.org/schema/p" 
+		注入：<bean name="user3" class="com.hn.bean.User" p:name="jack" p:age="20" p:car-ref="car"></bean>
+	4.spel注入 spring Expression Language //spring表达式语言
+		<property name="name" value="#{car.name}"></property>
+		<property name="car" ref="car"></property>
+		可以直接使用上边配置好的对象的值，但是对象中的对象还得用ref
+复杂类型注入：
+	数组：
+		若只有一个值，还可以使用value="xxx"设置
+		若需要多个值，	<property name="arr">
+							<array>
+								<value>tom</value>	//值类型
+								<ref bean="user"/>  //对象类型
+							</array>
+						</property>
+	list:
+		单值同上
+			<property name="list">
+				<list>
+					<value>rose</value>		
+					<ref bean="user"/>
+				</list>
+			</property>
+	map:
+		<property name="map">
+			<map>
+				<entry key="url" value="uuuuuuuu"></entry>
+				<entry key="user" value-ref="user"></entry>
+				<entry key-ref="user2" value-ref="user3"></entry>
+			</map>
+		</property>
+	prop:
+		<property name="prop">
+			<props>
+				<prop key="name">wangcai</prop>
+				<prop key="username">root</prop>
+			</props>
+		</property>
+注解配置spring：
+	1.为主配置文件引入新的命名空间
+			context
+	2.开启使用注解	<!-- 对象-扫描   从指定的包以及子孙包 -->
+			<context:component-scan base-package="com.hn"></context:component-scan>
+	3.在类中使用注解
+			//新版spring需要再导入spring-aop.jar包
+注解:
+	@Component("user")
+		//相当于<bean name="user" class="com.hn.bean.User">
+		@Service("user")
+			//service层，只做分类
+		@Controller("user")
+			//web层，只做分类
+		@Repository("user")
+			//dao层，只做分类
+	@Scope(scopeName="singleton")
+		指定对象的scopes属性
+	@Value("旺财")
+		配置普通属性值，
+		可以加在属性上边(反射赋值，破坏封装性)，也可以加在set方法上(通过set方法，推荐)
+	@Autowired //自动装配
+		配置对象属性值，首先将该对象类配置到spring中，
+		然后加上@Autowired即可
+		问题：如果匹配到多个类型一致的对象，将无法选择
+			方法一：	@Autowired
+						@Qualifier("car2")//可以指定装配哪个对象
+			方法二：	@Resource(name="car2")//手动注入，推荐
+	@PostConstruct//
+		配置init-method属性，对象创建后执行该方法
+	@PreDestroy
+		配置destory-method属性，对象销毁之前执行该方法
+使用注解：
+	@RunWith(SpringJUnit4ClassRunner.class)//帮我们创建spring容器
+	@ContextConfiguration("classpath:applicationContext.xml")//指定配置文件
+	public class Test(){
+	    @Resource(name = "user")//指定使用哪个bean装配
+    	private User user;//声明一个bean
+	}
+	spring与jUnit整合测试：
+	1.导包spring-test-4.2.4.RELEASE.jar
+	2.@RunWith(SpringJUnit4ClassRunner.class)//帮我们创建容器(加在类上)
+	3.@ContextConfiguration("classpath:applicationContext.xml")//指定创建容器时使用哪个配置文件(加在类上)
+	4.声明一个需要的对象，使用@Resource(name = "user")//将名为user的对象注入到user变量中
+	5.在各个@Test方法中可直接使用，不用每次都创建容器再获取bean对象那么麻烦了
+静态代理：
+	代理类和委托类实现相同的接口（代理类真正调用的还是委托类的方法）
+	由程序员创建代理类或特定工具自动生成源代码对其编译，程序运行前代理类的字节码文件已经存在
+	优点：
+		代理使客户端不需要知道实现类是什么，怎么做的，而客户端只需知道代理即可（解耦合），对于如上的客户端代码，newUserManagerImpl()
+		可以应用工厂将它隐藏，如上只是举个例子而已。
+	缺点：
+		1）代理类和委托类实现了相同的接口，代理类通过委托类实现了相同的方法。这样就出现了大量的代码重复。如果接口增加一个方法，除了所有实现
+		类需要实现这个方法外，所有代理类也需要实现此方法。增加了代码维护的复杂度。
+		2）代理对象只服务于一种类型的对象，如果要服务多类型的对象。势必要为每一种对象都进行代理，静态代理在程序规模稍大时就无法胜任了。
+动态代理：
+	代理类继承委托类
+	在程序运行期间运用反射机制动态创建而成
+	在Java中要想实现动态代理机制，需要java.lang.reflect.InvocationHandler接口和 java.lang.reflect.Proxy 类的支持
+		//Object proxy:被代理的对象  
+		//Method method:要调用的方法  
+		//Object[] args:方法调用时所需要参数  
+		public interface InvocationHandler {  
+		    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable;  
+		}
+		//CLassLoader loader:类的加载器  
+		//Class<?> interfaces:得到全部的接口  
+		//InvocationHandler h:得到InvocationHandler接口的子类的实例  
+		public static Object newProxyInstance(ClassLoader loader, Class<?>[] interfaces, InvocationHandler h) throws 
+		IllegalArgumentException 
+	优点：
+		动态代理与静态代理相比较，最大的好处是接口中声明的所有方法都被转移到调用处理器一个集中的方法中处理（InvocationHandler.invoke）
+		。这样，在接口方法数量比较多的时候，我们可以进行灵活处理，而不需要像静态代理那样每一个方法进行中转。而且动态代理的应用使我们的类职
+		责更加单一，复用性更强
+aop思想：
+	横向重复，纵向抽取
+	封装了动态代理技术
+	实现：	//可以对所有对象进行代理
+		动态代理  //代理需要实现接口 
+		cglib代理 //对目标对象继承代理
+aop名词：
+	Joinpoint:连接点   ：目标对象中，所有可以增强的方法
+	Pointcut :切入点   ：目标对象中，已经增强的方法（可以指定增强方法）
+	Advice   :通知/增强：增强的代码，例如执行方法前后的打开事务和提交事务
+	Target   :目标对象 ：被代理对象
+	Weaving  :织入     ：将通知应用到连接点形成切入点的过程
+	Proxy    :代理     ：将通知织入到目标对象之后形成的代理对象
+	aspect   :切面     ：切入点+通知
+spring中的AOP(xml配置):
+	1.导包4+2+2+2
+		spring包4
+		日志包2
+		aop包：aop aspect 
+		aop第三方包：aopalliance weaver
+	2.准备目标对象
+	3.准备通知
+	4.配置进行织入
+		* //任意
+		..//任意包任意参数
+		//前置通知(目标方法运行之前调用)
+		//后置通知(目标方法运行之后调用，异常时不会调用)
+		//环绕通知(目标方法运行之前之后都调用)
+		//异常拦截通知(发生异常时调用)
+		//后置通知(无论是否出现异常都会调用)
+		<aop:config>
+			<aop:pointcut expression="execution(* com.hn.service..*ServiceImpl.*(..))" id="pc"/>
+			<aop:aspect ref="MyAdvice">
+				<aop:before method="before" pointcut-ref="pc"/>
+				<aop:after-returning method="afterReturing" pointcut-ref="pc"/>
+				<aop:after-throwing method="afterException" pointcut-ref="pc"/>
+				<aop:around method="around" pointcut-ref="pc"/>
+				<aop:after method="after" pointcut-ref="pc"/>
+			</aop:aspect>
+		</aop:config>
+spring中的AOP(注解配置):
+	导包4+2+aop包
+	导入context约束
+	配置目标对象
+	配置通知对象
+		@Component("BeanName")//将对象注册到spring容器
+	开启扫描包中类的注解
+		<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+	@Aspect
+		//表示该类是一个通知类
+	@AfterReturning(value = "execution(* com.hn.service..*ServiceImpl.*(..))")
+		//表示为后置通知方法，并指定切入点，其他类似，并且可以抽取切入点表达式
+Spring中提供了一个可以操作数据库的对象，封装了JDBC技术：
+	JDBCTemplate JDBC模板对象
+	导包：4+2+test+aop+jdbc
+	准备数据库
+
+
+
+
+
+
+
+springboot
+快速创建：
+resource文件夹目录结构：
+	static:保存所有的静态资源 js,css,images
+	templates:保存所有的模板 默认不支持jsp 使用嵌入式的tomcat
+	application.properties:配置文件，可以修改一些默认设置
