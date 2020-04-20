@@ -13,7 +13,7 @@ Git连接远程仓库：
 		git init初始化本地仓库
 		git config --global user.email "hanyanan9527@163.com"
 		git config --global user.name "centos_hn"
-	关联github：git remote add origin git@github.com:hn9527/learngit.git
+	关联github：git remote add github git@github.com:hn9527/learngit.git
 	关联码云：  git remote add gitee git@gitee.com:hn9527/HN_STU.git
 centos 下git命令输出乱码解决：
 	git config --global core.quotepath false
@@ -26,7 +26,6 @@ Windows下git bash 不显示中文：
 	git push origin master
 	可等到有网时一次推送
 	把本地master分支的最新修改推送至远程仓库
-上传SSH公钥：.ssh/id_rsa.pub
 创建项目
 本地关联码云：git remote add origin git@gitee.com:youname/ckname.git
 删除关联远程库：git remote rm [origin] 关联时指定的名字
