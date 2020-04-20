@@ -15,6 +15,9 @@ Git连接远程仓库：
 		git config --global user.name "centos_hn"
 	关联github：git remote add github git@github.com:hn9527/learngit.git
 	关联码云：  git remote add gitee git@gitee.com:hn9527/HN_STU.git
+				git remote add gitee git@gitee.com:hn9527/hn.git
+	本地已有文件的情况下拉取码云仓库报错：git拒绝不相关的历史记录合并
+		使用命令：git pull gitee master --allow-unrelated-histories
 centos 下git命令输出乱码解决：
 	git config --global core.quotepath false
 Windows下git bash 不显示中文：
