@@ -10,12 +10,13 @@ Git连接远程仓库：
 	将/home/hn/.ssh/id_rsa.pub内容复制到git account的ssh key
 关联远程仓库：
 	首先执行：
-		git init初始化本地仓库 或 giti clone git@gitee.com:hn9527/hn.git
+		git init初始化本地仓库 或 git clone git@gitee.com:hn9527/hn.git
 		git config --global user.email "hanyanan9527@163.com"
 		git config --global user.name "centos_hn"
-	关联github：git remote add github git@github.com:hn9527/learngit.git
-	关联码云：  git remote add gitee git@gitee.com:hn9527/HN_STU.git
-				git remote add gitee git@gitee.com:hn9527/hn.git
+	关联github：  git remote add github git@github.com:hn9527/learngit.git
+	关联码云：    git remote add gitee git@gitee.com:hn9527/HN_STU.git
+				  git remote add gitee git@gitee.com:hn9527/hn.git
+	关联私有仓库：git remote add origin git@111.229.23.108:/git_private/ZBB.git
 	本地已有文件的情况下拉取码云仓库报错：git拒绝不相关的历史记录合并
 		使用命令：git pull gitee master --allow-unrelated-histories
 centos 下git命令输出乱码解决：
@@ -151,9 +152,32 @@ Rebase:	git rebase 可将提交图变成一条直线，
 3.创建证书登陆：
 	收集需要登陆的用户的公钥即id_rsa.pub文件，导入到/home/git/.ssh/authorized_keys文件中，一行一个
 4.初始化git仓库
-	选定一个目录作为Git仓库，假定为/srv/sample.git ，在此目录下输入命令：sudo git init --bare sample.git
-	修改owner为git；sudo chown -R git:git sample.git
+	选定一个目录作为Git仓库，假定为/git_private/ZBB.git ，在此目录下输入命令：sudo git init --bare ZBB.git
+	修改owner为git；sudo chown -R git:git ZBB.git
 5.禁用shell登陆
-	修改/etc/passwd文件中git:x:1001:1001:,,,:/home/git:/bin/bash为git:x:1001:1001:,,,:/home/git:/usr/bin/git-shell
+	修改/etc/passwd文件中git:x:1001:1001:,,,:/home/git:/bin/bash
+	为                   git:x:1001:1001:,,,:/home/git:/usr/bin/git-shell
 6.克隆远程仓库：
-	各个用户克隆： git clone git@server:/srv/sample.git
+	各个用户克隆： git clone git@111.229.23.108:/git_private/ZBB.git
+	或：git init
+		git git config --global user.email "hanyanan9527@163.com"
+		git config --global user.name "centos_hn"
+		git remote add origin git@111.229.23.108:/git_private/ZBB.git 
+		git pull origin master
+	即可
+附注：--bare 创建裸仓库，看不到上传的代码
+	使用钩子 将上传的代码同步到指定的工作目录
+	自动同步功能用到的是 git 的钩子功能，
+	服务器端：进入裸仓库：/git_private/ZBB.git
+	cd /git_private/ZBB.git
+	cd hooks
+	//这里我们创建post-receive文件
+	vim post-receive
+	//在该文件里输入以下内容--其中工作目录需要自己创建，并修改所有者为git
+	#!/bin/bash
+	git --work-tree=/git_private/zbb checkout -f
+	//保存退出后，将该文件用户及用户组都设置成git
+	chown git:git post-receive
+	//由于该文件其实就是一个shell文件，我们还应该为其设置可执行权限
+	chmod +x post-receive
+	即可
