@@ -10,7 +10,7 @@ Git连接远程仓库：
 	将/home/hn/.ssh/id_rsa.pub内容复制到git account的ssh key
 关联远程仓库：
 	首先执行：
-		git init初始化本地仓库
+		git init初始化本地仓库 或 giti clone git@gitee.com:hn9527/hn.git
 		git config --global user.email "hanyanan9527@163.com"
 		git config --global user.name "centos_hn"
 	关联github：git remote add github git@github.com:hn9527/learngit.git

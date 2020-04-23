@@ -33,7 +33,7 @@ fcntl函数：
 	int fcntl(int filedes,int cmd,...);
 	五种功能：
 	（1）复制一个现存的描述符（cmd=F_DUPFD）
-	（2）获得/设置文件描述符标志（cmd=F_GETFD或F_SETFD）
+	（2）获得/设置文件描述符在exec时是否关闭标志（cmd=F_GETFD或F_SETFD）
 				当前只定义了一个文件描述符标志FD_CLOSEEXEC //默认0，exec时不关闭文件描述符，1关闭
 	（3）获得/设置文件状态标志（cmd=F_GETFL或F_SETFL）
 				O_RDONLY	O_WRONLY	O_RDWR只能选一个
@@ -401,7 +401,7 @@ C程序的存储空间布局
 	gid_t getegid(void); 返回：调用进程的有效组 ID
 fork函数：
 	fork()函数	vfork()函数
-	前者要拷贝父进程的数据段，后者不完全拷贝，在子进程没有调用exec或exit之前，与父进程共享数据段
+	前者要拷贝父进程的数据段。后者不完全拷贝，在子进程没有调用exec或exit之前，与父进程共享数据段。
 	后者自动调用exec，并且不会将父进程的地址空间复制到子进程中，子进程exit()或exec之前，它在父进程的空间中运行
 	后者限定子进程先运行，父进程挂起直到子进程调用了exec或exit后，父子进程才没有执行次序的限制
 	后者使用exit退出时，将关闭所有I/O流，导致父进程也不能用，因为他是在父进程的空间中关闭的
