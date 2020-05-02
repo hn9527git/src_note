@@ -146,7 +146,7 @@ Rebase:	git rebase 可将提交图变成一条直线，
 -------------------------------搭建Git服务器——————————————————————————》
 用于不想公开源代码，又不想交保护费
 1.安装git	 
-	sudo apt-get install git
+	sudo apt-get install git  或者 yum install git
 2.创建git用户
 	sudo adduser git
 3.创建证书登陆：
@@ -173,7 +173,7 @@ Rebase:	git rebase 可将提交图变成一条直线，
 	cd hooks
 	//这里我们创建post-receive文件
 	vim post-receive
-	//在该文件里输入以下内容--其中工作目录需要自己创建，并修改所有者为git
+	//在该文件里输入以下内容  --其中工作目录需要自己创建，并修改所有者为git
 	#!/bin/bash
 	git --work-tree=/git_private/zbb checkout -f
 	//保存退出后，将该文件用户及用户组都设置成git
@@ -181,3 +181,6 @@ Rebase:	git rebase 可将提交图变成一条直线，
 	//由于该文件其实就是一个shell文件，我们还应该为其设置可执行权限
 	chmod +x post-receive
 	即可
+其他工具：
+要方便管理公钥，用Gitosis；
+要像SVN那样变态地控制权限，用Gitolite。

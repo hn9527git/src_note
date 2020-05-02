@@ -23,7 +23,16 @@ docker 部署 oracle:!!!
 	安装plsql后将客户端安装在plsql中
 	在instantclient下新建network/admin/，并将tnsnames.ora放在admin下
 	配置plsql首选项，Oracle主目录写instantclient的路径，oci.dll写instantclient/oci.dll重启plsql即可。
-
+如果您打算将可选的 Oracle 配置文件（如 tnsnames.ora、sqlnet.ora ldap.ora 或 oraaccess.xml）与 
+	Instant Client 放在同一位置，那么请创建一个C:\oracle\instantclient_12_2\network\admin 子目录。
+	这是与此 Instant Client 链接的应用的默认 Oracle 客户端配置目录。
+	或者，Oracle 客户端配置文件可以放在另一个可访问的目录中。然后，将环境变量 TNS_ADMIN 设置为该目录名称。
+安装后sql中带中文得查不到结果解决办法：
+	1、查询数据库的编码
+		select userenv('language') from dual;
+	2、添加系统环境变量
+		变量名：NLS_LANG
+		变量值：填入第一步查出来的值即可
 视图：
 	create view name[] as <子查询> [with check option];
 	就像一个窗口，通过视图看数据，原本数据发生变化，视图里看到的也会发生变化
