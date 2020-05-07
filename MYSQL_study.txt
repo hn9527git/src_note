@@ -1,3 +1,45 @@
+MySQL连接：
+	1、TCP\IP方式：
+		//用于客户端连接远程数据库，mysqld会检查mysql.user权限表
+		mysql -h 111.229.23.108 -uroot -p
+	2、命名管道
+		//在配置文件中启用：
+		--enable-named-pipe
+	3、共享内存
+		//在配置文件中启用：
+		--shared-memory
+		//连接时加上选项
+		--protocol=memory
+	4、UNIX本地域//在一台主机上连接
+		//查看sock文件在哪
+		show variables like 'socket';
+		//路径：/var/lib/mysql/mysql.sock
+		//连接
+		mysql -uroot -S /var/lib/mysql/mysql.sock
+启动：
+	mysqld_safe 或
+	systemctl start mysqld
+查看innodb引擎状态：
+	show engine innodb status\G
+刷新：
+	修改权限后执行命令：flush privileges;
+查看MySQL启动时读取的配置文件在哪：
+	bash执行：mysql --help|grep my.cnf
+	/etc/my.cnf    /etc/mysql/my.cnf     /usr/etc/my.cnf    ~/.my.cnf 
+	顺序读取，后读到的配置为准
+win下MySQL启动时读取的配置文件：
+	C:\WINDOWS\my.ini 
+	C:\WINDOWS\my.cnf 
+	C:\my.ini 
+	C:\my.cnf 
+	C:\Program Files\MySQL\MySQL Server 5.6\my.ini 
+	C:\Program Files\MySQL\MySQL Server 5.6\my.cnf
+查看支持的引擎：
+	show engines;
+undo:
+	回滚段，保存数据修改之前的数据
+redo：
+	撤销段，保存修改的数据【缓存中】（脏数据保存在文件中，未刷到磁盘上）
 SQL在处理OR操作符前，优先处理AND操作符，可以加括号强制修改处理顺序
 通配符：
 	% 任意字符出现任意次数

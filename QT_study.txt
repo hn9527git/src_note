@@ -3,7 +3,7 @@ QT连接MySQL:
 	出现错误：QSqlDatabase: QMYSQL driver not loaded QSqlDatabase: available drivers: QSQLITE QMYSQL QMYSQL3 QODBC7
 	解决办法：
 		将mysql/lib/libmysql.dll复制到c：/windows中;
-	终极解决办法：构建时使用MSVC就好了，真是傻逼软件，使用mingw不行
+	终极解决办法：构建时使用MSVC就好了，使用mingw不行
 	TMD这样不行了
 Linux下Qt
 	出错：没有找到pthread.h中的线程函数
@@ -12,6 +12,9 @@ Linux下Qt
 构造套件的黄色感叹号：
 	标识编译器与调试器不配套，使用mingw时使用gdb，使用msvc应使用cbd调试器(一般因为没有安装cdb调试器)。
 	解决办法：在控制面板的程序中找到kits构造套件，更改安装cdb调试器(已安装了实际没有时，可先卸载再安装即可)。
+QT中执行的上下文环境在：
+	//不同项目或模式在不同的文件夹
+	C:\Users\HN\Documents\QT-Data\build-get_sp_code-Desktop_Qt_5_12_8_MSVC2017_64bit-Debug\
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++==
 qt + vs2017:
 安装qt for vs 插件即可
@@ -112,14 +115,33 @@ QString:
 	trimmend()函数：移除字符串两端的空白
 	simplified()函数：移除字符串两端的空白，并且使用单个空格字符代替字符串中出现的连续空白字符。
 	NULL字符串时void* 类型的对象 <> 空字符串是大小为0的字符串类型的对象。
+QList:
+	内部维护一个指针数组，如果存储的对象类型大小等于指针大小，直接存储对象，否则存贮对象的地址
+	所以支持下标操作，所以查找快，直接使用下标访问。
+QLinkedList:
+	链式列表，非连续内存保存数据，插入速度快，不能使用下标。
+QVector:
+	查找快，在尾部插入快
+QListIterator、QList<T>::const_iterator:
+	只读迭代器，比读写速度快，尽量使用
+QMutableListIterator、QList<T>::iterator:
+	读写迭代器
 QMap & QHash:
 	QHash比QMap的查找速度快
 	QHash任意顺序存储数据项，QMap总是按照key键顺序存储数据
 	QHash的键类型Key必须提供operator==（）和一个全局的qHash（key）函数，
 	而QMap的键类型KEY必须提供operator<()函数。
+	若保存数据不要求顺序，尽量使用QHash
+QVariant:
+	可以保存许多Qt类型的值，也可以存放Qt容器类型的值，类似C++的联合(union)
+常用算法：
+	qABS():取绝对值
+	qRound();四舍五入成整数
+	qMax(a,b):最大值
+	aSwap(a,b):交换a和b
 大小写：
 	Qt:CaseSensitive 设置大小写不敏感
-正则表达式：
+正则表达式类 QRegExp：
 	表达式+量词+断言
 	[]和[^]：匹配与不匹配
 	x[m,n]:至少m个，至多n个。
@@ -130,10 +152,12 @@ QMap & QHash:
 	$:结尾匹配
 	\b：单词边界
 	\B:非单词边界
+	\s:匹配一个空格
 定时器：
 	新建定时器：QTimer * name = new QTimer(parent);
 	连接信号和槽：connect(name,SIGNAL(timeout()),this,SLOT(xx()));
 	开启定时器：start(int time)每间隔time毫秒重启定时器。setSingleShot(true)只用一次。
+	关闭定时器：stop();
 button()和buttons()函数的区别:
 	前者返回产生事件的按钮
 	后者返回产生事件的按钮状态
