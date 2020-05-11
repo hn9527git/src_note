@@ -8,3 +8,6 @@ kettle 配置oracle连接
 kettle保存时中文乱码问题：
 	1、修改spoon.bat  找到set OPT=%OPT% %PENTAHO_DI_JAVA_OPTIONS% 在这后面加上"-Dfile.encoding=UTF-8"
 	2、编辑登录的那个数据库连接，在选项中设置 characterEncoding   UTF-8
+kettle从MySQL导数据到Oracle发生数据越界异常：
+	可能是表输入一次提交数量设置太高导致，默认设置1000即可
+	也有可能是kettle本身限制了插入的数据的总大小，只抽需要的字段即可。

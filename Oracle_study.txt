@@ -18,7 +18,13 @@ docker 部署 oracle:!!!
 		2.使用公网连接，并设置sid，本例中sid为helowin
 查看Oracle的sid:
 	select instance_name from  V$instance;
---------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+Oracle客户端下载:
+	https://www.oracle.com/database/technologies/instant-client/downloads.html
+破解码：
+	Product Code：4t46t6vydkvsxekkvf3fjnpzy5wbuhphqz
+	serial Number：601769
+	password：xs374ca
 安装Oracle客户端和plsql
 	安装plsql后将客户端安装在plsql中
 	在instantclient下新建network/admin/，并将tnsnames.ora放在admin下
@@ -33,6 +39,10 @@ docker 部署 oracle:!!!
 	2、添加系统环境变量
 		变量名：NLS_LANG
 		变量值：填入第一步查出来的值即可
+plsql卡慢：
+	1、设置兼容模式运行
+	2、设置以管理员模式运行
+	3、在首选项里面将检查连接选项打勾
 视图：
 	create view name[] as <子查询> [with check option];
 	就像一个窗口，通过视图看数据，原本数据发生变化，视图里看到的也会发生变化
