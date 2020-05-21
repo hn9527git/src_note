@@ -21,8 +21,6 @@ MySQL连接：
 	systemctl start mysqld
 查看innodb引擎状态：
 	show engine innodb status\G
-刷新：
-	修改权限后执行命令：flush privileges;
 查看MySQL启动时读取的配置文件在哪：
 	bash执行：mysql --help|grep my.cnf
 	/etc/my.cnf    /etc/mysql/my.cnf     /usr/etc/my.cnf    ~/.my.cnf 
@@ -61,22 +59,20 @@ SQL在处理OR操作符前，优先处理AND操作符，可以加括号强制修
 	^ 开始
 	$ 结尾
 	SELECT name FROM table_name WHERE name REGEXP '^st';//查询以st开头的name的记录
-连接:
-	concat()
-去除空格：
-	去两边：trim()
-	去左边：Ltrim()
-	去右边：Rtrim()
 常用：
-	upper()				//大写
 	left(“wocao”,2)		//左边子串
 	length()			//长度
 	locate("oc","wocao")//返回第一个str在第二个str中第一次出现的位置
-	lower()				//小写
 	substring(filed,m,n)//截取filed字段从第m个字符开始到n的字符串；
 union从查询结果集中自动去除了重复的行 （不去除：union all）
 union只能使用一种order by语句，不能一部分一种排序方式
-
+复制表结构：
+	create table test1 as select * from test where 1=2 或 create table test2 like test;
+	as用来创建相同表结构并复制源表数据。
+	like用来创建完整表结构和全部索引。
+	oracle也支持as，也是只有表结构没有索引，oracle不支持like。
+	两种方式在复制表的时候均不会复制权限对表的设置。比如说原本对表B做了权限设置，
+	复制后，表A不具备类似于表B的权限。
 插入：
 	insert [low_priority] into:降低插入的优先级
 	insert into tab (a,b...) values (1,2...),(3,4...);//此方式提高性能
@@ -84,8 +80,8 @@ union只能使用一种order by语句，不能一部分一种排序方式
 更新：
 	update [ignore] tab set a='1' where id=6;//ignore更新多行时使其发生错误也不回滚
 删除：
-	delete from tab where id=9;//按行删除数据
-	truncate table tab;//删除所有数据，表结构还在
+	delete from tab where id=9;//按行删除数据，可还原
+	truncate table tab;//删除所有数据，表结构还在，数据无法还原不是DML(数据操纵)是DDL(数据定义)
 	drop table tab;//删除数据和表结构，彻底删除
 重命名：
 	rename table tab to tab2,[tab3 to tab4]...;
@@ -100,13 +96,13 @@ myisam：
 跨引擎：
 	引擎可以跨用，但外键不能
 更新表结构：
-	alter table tab [add 字段 类型] [drop column 字段]
+	alter table tab [add 添加字段 类型] [drop 删除字段] [change 更名字段 类型] [modify 修改字段 类型]
 	常用来定义外键：[add constraint 外键名 foreign key (字段名) references tab2(字段)]
 视图：包含使用时动态检索数据的查询
 	作用：重用SQL，简化SQL，保护表的组成部分，保护数据【给视图权限，不给表权限】，更改表现形式
 	创建：create view name as select...;
 	可以但不应该对视图进行更新，实际上是对基表增加或删除行
-！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 MYSQL索引
 	优点：提高查询效率，不必查询所有数据，节约查询时间，降低CPU消耗
 	缺点：占用空间，降低更新表的速度
@@ -117,18 +113,20 @@ MYSQL索引
 	create index 索引名称 on table(columu,...);
 删除：
 	drop index 索引名称 on table;
-explain:
+explain://解释sql，可以看到执行相关的信息，比如使用了那些索引等
 	explain select 语句;
 索引方法：
 	innodb只支持BTREE，不支持HASH
-￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥
+￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥
 新增用户：
 	create user user_name identified by '密码';
 查看用户权限：
 	show grants for user_name;
 设置新密码：
 	set password for user_name = password('新密码');	
-------------------存储过程-----------------------------------------------------------------------------------------------
+刷新：
+	修改权限后执行命令：flush privileges;
+------------------存储过程--------------------------------------------------------------------------
 	一组可编程的函数，是为了完成特定功能的SQL语句集
 	完成特定功能，保存在数据字典中
 特点：
@@ -263,7 +261,7 @@ delimiter //（任意符号）
 回退到某个保留点：
 	ROLLBACK TO delete1;
 --事务并发问题--
-		  查看事务隔离级别：（select @@tx_isolation;）8.0版本(select @@transaction_isolation;)
+	查看事务隔离级别：（select @@tx_isolation;）8.0版本(select @@transaction_isolation;)
 	读未提交（read uncommit）：一个会话查到另一个会话的未提交事务所作的修改
 			也称为脏读。
 	不可重复读（read commit）:一个事务要等到另一个事务提交后才能读到
@@ -284,7 +282,7 @@ delimiter //（任意符号）
 设置不自动提交：
 	set autocommit=0;
 	MySQL默认每一条查询当作一个事务自动提交。Oracle不自动提交
-￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥
+￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥￥
 视图：
 	是一个虚拟表，内容由查询定义，简单来说，就是由select结果构成的表。
 	安全，查询性能提高，提高了数据的独立性

@@ -43,12 +43,13 @@ plsql卡慢：
 	1、设置兼容模式运行
 	2、设置以管理员模式运行
 	3、在首选项里面将检查连接选项打勾
+	还是卡，hhh
 视图：
 	create view name[] as <子查询> [with check option];
 	就像一个窗口，通过视图看数据，原本数据发生变化，视图里看到的也会发生变化
 	[with check option]:通过视图进行的修改，必须也能通过该视图看到修改后的结果。
 索引：
-	create [] index 索引名 on 表名（列名，次序）;
+	create [索引类型] index 索引名 on 表名（列名，次序）;
 序列：
 	create sequence hero_seq
 	increment by 1 
@@ -61,7 +62,7 @@ plsql卡慢：
 		select hero_seq.nextval from dual;
 		//获取序列的当前值
 		select hero_seq.currval from dual;
-………………………………………………………………………………………………………………………………………………………………………
+…………………………………………………………………………………………………………………………………
 增加：
 	insert into table_name [列名1，...] values(值1,...)；
 	//字符串要加单引号
@@ -69,13 +70,11 @@ plsql卡慢：
 批量插入：
 	INSERT INTO TABLE_NAME [列名1，...] Subquery;
 	Subquery是子查询语句，所查结果必须与前边的列名一一对应。
-	或 CREATE TABLE TABLE_NAME [列名1，...] AS SELECT XX FROM TAB_FROM;//单SQL复制整张表
+	或 //单SQL复制整张表，无法复制索引等信息
+	CREATE TABLE TABLE_NAME [列名1，...] AS SELECT XX FROM TAB_FROM;
 添加注释：	
-  comment on table PROD.GS_MID_GJMY_YW_SETTLE
-  is 'D112-国际漫游业务月结算表';
-修改：
-	UPDATE 表名称 SET 字段名=值，...【WHERE ...】
-	//数据库更新时，其他用户不能针对当前的数据进行任何操作
+  comment on table PROD.GS_MID_GJMY_YW_SETTLE is 'D112-国际漫游业务月结算表';
+  comment  on  column  表名.字段名   is  '注释内容';
 删除：
 	DELETE FROM 表名称 [where ...] [in (...)] ...
 	//不加条件 则删除整张表
@@ -101,7 +100,8 @@ plsql卡慢：
 		行号：对查询的每一条记录自动编号，动态生成，不固定
 	作用：	取出第一行记录；##只有where rownum=1 可用，其他值不能用；
 		取出前N行记录；where rownum<=n，
-		取出某连续n行： select rownum ro(一定要使用别名),ename from emp;返回的结果集中rownum为一列数据，
+		取出某连续n行： select rownum ro(一定要使用别名),ename from emp;
+		返回的结果集中rownum为一列数据，
 				然后再使用where  temp.ro>5 子句 限定范围
 				例： select * from (select rownum ro,ename,sal from emp) where ro between 2 and 6;
 	2.ROWID//数据分析上
@@ -109,20 +109,19 @@ plsql卡慢：
 		ROWID：数据对象编号+数据保存文件编号+数据保存块号+数据保存行号
 		可通过ROWID查询到唯一的数据
 		删除重复记录，只保留一条添加时间最早的记录：
-			 select a,b,c,MIN(ROWID) from tab group by a,b,c ; 得到每个初始数据ROWID，然后删除//not in;
-建表：
-	create table mmm(id number,...,...);
+			 select a,b,c,MIN(ROWID) from tab group by a,b,c ; 
+			 得到每个初始数据ROWID，然后删除//not in;
 数据字典：
 	用户级别：user_*开头
 	管理员级别：dba_*开头
 	全部级别：all_*开头
-查看当前用户表：
+查看当前用户下的表：
 	select table_name from user_tables;
 表重命名：
 	RENAME 旧表名称 TO 新表名称
 复制表：
 			    |-----子查询------|
-	create table myemp as select * from emp;//仅Oracle支持
+	create table myemp as select * from emp;
 	复制表结构，不复制数据：
 		create table myemp as select * from emp where 1=2;
 删除表：

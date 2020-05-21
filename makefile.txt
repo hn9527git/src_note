@@ -20,7 +20,8 @@ make dist
 	PACKAGE和VERSION,是我们在configure.in中定义的AM_INIT_AUTOMAKE（PACKAGE, VERSION）。
 make distcheck
 	生成发布软件包并对其进行测试检查，以确定发布包的正确性。这个操作将自动把压缩包文件解开，
-	然后执行configure命令，并且执行make,来确认编译不出现错误，最后提示你软件包已经准备好，可以发布了。
+	然后执行configure命令，并且执行make,来确认编译不出现错误，最后提示你软件包已经准备好，
+	可以发布了。
 make distclean
 	类似make clean,但同时也将configure生成的文件全部删除掉，包括Makefile文件。
 make时重新编译：
