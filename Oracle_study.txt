@@ -132,7 +132,7 @@ plsql卡慢：
 	drop table 表名称 PURGE;强制删除，不进入回收站。
 闪回技术：FLASH BACK
 	删除数据表后，并未真正删除，而是存在回收站中，名为BIN*
-	恢复被删除的表：FLASHBACK TABLE 表名 	TO BEFORE DROP;
+	恢复被删除的表：FLASHBACK TABLE 表名 TO BEFORE DROP;
 修改表结构：--了解!!!
 	添加列：ALTER TABLE 表名称 ADD（列名称,类型[DEFAULT 默认值]，。。。）;
 	修改列:  ALTER TABLE 表名称 MODIFY（列名称,类型[DEFAULT 默认值]，。。。）;
