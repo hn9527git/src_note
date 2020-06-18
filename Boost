@@ -1,0 +1,55 @@
+Boost编译安装：
+	解压缩：
+		1.CMD进入目录
+		2.执行 boostrap.bat gcc【环境必须访问得到gcc】 或 boostrap.bat vc141【即vs2017】
+		3.//使用mingw的gcc编译64位的boost
+			./b2.exe install --prefix=C:\Users\HN\Documents\open_source\boost\boost_1_73\ --build-type=complete toolset=gcc threading=multi address-model=64
+		 //使用vs2017编译32位的boost
+			./b2.exe install --prefix=C:\Users\HN\Documents\open_source\boost\boost_1_73_vc\ --build-type=complete threading=multi
+	注：prefix指定安装目录，头文件包含在其下/include中，库文件包含在其下/lib中。
+Cmake使用boost：
+	#添加头文件搜索路径
+	## gcc编译版本
+	#include_directories(C:/Users/HN/Documents/open_source/boost/boost_1_73_gcc/include)
+	## vs2017编译版本
+	include_directories(C:/Users/HN/Documents/open_source/boost/boost_1_73_vc/include)
+	#添加库文件搜索路径
+	## gcc编译版本
+	#link_directories(C:/Users/HN/Documents/open_source/boost/boost_1_73_gcc/lib)
+	## vs2017编译版本
+	#link_directories(C:/Users/HN/Documents/open_source/boost/boost_1_73_vc/lib)
+	###这个必须放在库文件路径下方，否则找不到库文件，也可以将库文件路径放在环境变量中，此处不再指定库文件路径
+	add_executable(test_boost main.cpp)
+
+调用拷贝构造函数或者赋值函数后，原有指针会被置NULL，所以C++才建议使用shared_ptr、unique_ptr、weak_ptr//c++11将其标记为弃用
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
