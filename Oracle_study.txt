@@ -63,6 +63,8 @@ plsql卡慢：
 		//获取序列的当前值
 		select hero_seq.currval from dual;
 …………………………………………………………………………………………………………………………………
+建表：//指定字段区分大小写
+	name varchar2(20) binary;//建表时在字段后加上binary关键字即可。
 增加：
 	insert into table_name [列名1，...] values(值1,...)；
 	//字符串要加单引号
