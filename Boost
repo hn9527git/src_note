@@ -20,10 +20,12 @@ Cmake使用boost：
 	#link_directories(C:/Users/HN/Documents/open_source/boost/boost_1_73_vc/lib)
 	###这个必须放在库文件路径下方，否则找不到库文件，也可以将库文件路径放在环境变量中，此处不再指定库文件路径
 	add_executable(test_boost main.cpp)
-
-调用拷贝构造函数或者赋值函数后，原有指针会被置NULL，所以C++才建议使用shared_ptr、unique_ptr、weak_ptr//c++11将其标记为弃用
-
-
+auto_ptr://C++98
+	调用拷贝构造函数或者赋值函数后，原有指针会被置NULL，所以C++才建议使用shared_ptr、unique_ptr、weak_ptr//c++11将其标记为弃用
+unique_ptr://C++11
+	可以定制删除器，可以管理普通指针和数组指针
+make_unique://C++14
+	工厂函数
 
 
 
