@@ -1,9 +1,42 @@
+/下常见文件夹的内容：
+	media：磁盘插载的目录
+	mnt：手动指定
+	proc:进程相关
+	opt:进程相关
+	usr:第三方软件
+	boot:开机启动程序
+	root:管理员目录
+du //磁盘使用 u-user
+	du -h 指定某个目录和其下所有文件的大小
+df //磁盘剩余 f-free
+	df 
+free //内存剩余
+	free -m
+ln -s//创建软连接，内部是创建的路径字符串，最好使用绝对路径，
+	//不然，挪动位置就无法使用了
+find://找文件
+	find / -maxdepth 1 -name '*.out'    //-maxdepth设设置搜索路径深度 放在第一个参数，0表示仅当前目录下的文件
+	find / -maxdepth 1 -type 'l'
+	find / -maxdepth 1 -size +20M -size -50M
+	find . -name a.out -exec ls -l {} \;//-exec相当于把结果集放在{}中
+	find . -name a.out -ok ls -l {} \;//对每个对象执行命令都会询问一次
+grep：//找文件内容
+	grep -r 'main' ./          //在当前目录下的文件中找main
+	grep -v 'main' main.cpp    //匹配main.cpp文件中不包含main的所有其他行
+a b:文件名含有空格  在命令行中添加 -print0 可按null结尾区分各个文件名
+	find . -name 'a b' -print0 | xargs -0 ls    //第二个用-0 加-print0不对
+man:
+	man 2 open   //系统调用
+	man 3 stat   //库函数
+	man 5 passwd //文件格式
+	man -k name  //可在man page中搜索字符串
 init 3:退出图形界面并进入字符界面
 init 5:回到图形界面，原来的图形界面的进程已死，而且需要重新登陆
 设置开机默认界面（图形或者字符界面）：vim /etc/inittab 不再使用但写有修改默认级别的方法
 系统级环境变量：/etc/profile
 用户级环境变量：~/.bash_profile
 查看二进制文件：hexdump xxd (od -c a.out//按字节查看)
+生成反汇编文件：objdump -dS a.out > out
 选项-I：
 	<>包含搜索顺序：首先在-I指定的路径中搜索所需的头文件，再去默认/usr/local/include中
 		最后去默认/usr/include中搜索
@@ -12,10 +45,10 @@ init 5:回到图形界面，原来的图形界面的进程已死，而且需要�
 -include：在命令行中指定头文件路径
 -l:链接共享库 例如 -lm 即代表链接 libm.so 或 libm.a
 -g:产生可供GDB调试用的可执行文件，稍大，不加则GDB看不见函数名、变量名只有内存地址
--pg:c=产生可供gprof剖析用的可执行文件，稍大但比-g的小
+-D:命令行添加宏
 mtime:(modify-time)文件内容最后一次改变的时间
 ctime:(change-time)状态(inode节点)修改的时间，包括修改文件内容
-atime:(access-time)最后一读取或执行的时间
+atime:(access-time)最后一读取或执行的时间//由于realtime机制，访问或执行并不修改atime
 	//ls默认显示时间是创建时间或最近的修改日期
 	//查看文件存取时间atime
 		ls -lu
@@ -28,25 +61,12 @@ atime:(access-time)最后一读取或执行的时间
 	2.通过节点号获取节点信息
 	3.根据节点号信息找到真正存储数据的数据块
 查看文件节点信息：stat 文件名
-vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-vs2017配置linux的头文件：
-直接将linux下的/usr/include中的文件复制到VS的头文件目录中即可C:\my_app\VS2017\VS_IDE\Common7\IDE\VC\Linux\include\usr\include
-重启vs
-###############################################################################
-man -k name 
-	#可在man page中搜索字符串
 查看文件时搜索：
 	/string ：向下搜索
 	?string ：向上搜索
 	搜索后继续按n ：搜索下一个
 sync 
 	#强制将数据(可能在缓冲区)写入硬盘
-文件相关属性：	
-	d:目录
-	-:文件
-	l:链接
-	b:接口设备
-	c:串行端口设备，例键盘鼠标
 chgrp:
 	chgrp -R hn test.txt
 	修改文件所属群组
@@ -71,6 +91,9 @@ chmod:
 cp:
 	cp -s 软链接(ln -s)
 	cp -l 硬链接(ln)#不支持目录
+	cp -a dir 拷贝全部，所有属性//不加-a会略过目录
+	cp -r dir 递归拷贝，时间改变
+	cp dir 略过目录，没有-r不会拷贝内部文件，=啥也没拷贝
 文件隐藏属性：
 	chattr [+-=][ASacdistu]文件或目录
 	a:不删不修只能增(root)
@@ -101,16 +124,13 @@ SBIT：显示为rwt，如果没有x的权限，显示为大写T
 		当用户对于此目录具有W，X权限，即具有写入权限时：
 			当该用户在该目录下新建文件或目录时，仅有自己与root才能删除
 	chmod o+t file_name
-find:
-	后加指令：find ./ -name a.out -exec ls -l {} \;
-	find [PATH] -name filename //常用
 超级区块：superblock
 	记录此文件系统的整体信息，包括inode/block的总量，
 		使用量，剩余量，以及文件系统的格式和相关信息
 inode://大小固定为128bytes
 	#12个直接，1个间接，一个双间接与一个三间接记录区
 	记录文件的属性，一个文件占用一个iNode，同时记录此文件的数据所在的block的号码
-	以1K block来说明：每个block地址占用4bytes
+	以1K block来说明：每个block地址占用4bytes，每一个间接指向一个block，可存储1024/4=256个block地址
 	12*1k + 1k*256 + 1k*256*256 + 1k*256*256*256=16GB
 block:
 	实际记录文件的内容，若文件太大会占用多个block
@@ -141,11 +161,69 @@ dd://可读取磁盘扇区表面数据
 	-p:权限不变
 	-P:可以带上根目录 /
 	--exclude=filename :排除此文件
+rar:	
+	需要安装//yum安不上？
+	压缩： rar a -r newdir.rar dir1 dir2 //-a打包 -r递归压缩，会自动加后缀
+	解压： unrar newdir.rar
+zip:
+	压缩：zip  -r newdir.zip dir1 dir2   //-r递归压缩
+	解压：unzip newdir.zip
 linux和windows换行格式转换：
 	dos2unix或unix2dos
 转换文本的编码格式：
 	iconv -f [原本编码] -t utf8 filename to new_filename
-
+内存布局：
+	高地址-----------------------
+		内核：
+		栈：
+			环境变量、main参数
+		堆栈中间：动态库加载位置
+		堆：
+		.bss:初始化区            \链接时
+		.data:未初始化区         /合并-读写段
+		.rodata:只读数据区       \链接时
+		.text:代码段             /合并-只读段
+	低地址-----------------------
+------------------Linux下的库------------------------------------------------------------
+本质上为可执行代码的二进制格式，可以被装入内存中执行。
+分为静态库和动态库
+不同：被载入的时刻不同
+	静态库在程序编译时被链接到目标代码中，目标程序运行时不再需要该动态库，移植方便但体积大，浪费资源，可执行文件大，但执行速度快
+	动态库在程序运行时才被载入，可执行文件小。使得程序升级相对简单，比如动态库更新，只需要更换动态链接库文件，不需要更换可执行文件
+//包含头文件后，gcc会主动抓取相关的函数库
+静态库：
+	后缀为.a，在Linux下一般命名为libxxx.a
+	优点：可执行文件最终运行时不在需要该库的支持，因为所有使用的函数已经编译进去了
+	创建：使用ar 将各个.o文件组合在一起
+		（1）编辑源文件（.c或.cpp）
+		（2）通过gcc -c xxx.c或g++ -c xxx.cpp生成目标文件(.o)
+		（3）用ar归档目标文件，生成静态库（ar [csrtv] libxxx.a xx1.o xx2.o ...）常用crs
+			c:无论库是否存在，都创建一个库
+			s:创建目标文件索引，创建较大库时加快时间
+			r:在库中插入模块，同名替换
+			t:显示库中目标文件的名称（tv:名称+时间+大小）
+		（4）配合静态库写一个头文件，文件里的内容就是提供给外面可以使用的函数、变量或类的声明。
+	使用：
+		（4）也可以在文件头部extern【不要extern关键字也行】 声明想要用到的静态库函数 
+		编译时加上 -L[库文件路径] -lxxx			//-lxxx：自动寻找libxxx.a
+动态库：
+	又称为共享库，后缀为.so，在Linux下一般命名为libxxx.M.N.so  //M为主版本号，N为副版本号
+	默认首先链接同名动态库，找不到再找同名静态库
+	创建：
+		g++ xxx.c -fPIC -shared -o libxxx.so
+		-shared:表示生成共享库
+		-fPIC:编译为位置独立的代码，在可执行程序加载的时候可以存在放在内存中的任何位置
+		//也可以分成两步：
+		 1、g++ -fPIC -c xxx.cpp -o xxx.o
+		 2、g++ -shared libxxx.so xxx.o
+	使用：
+		可以在文件头部extern 想要用到的静态库函数 编译时加上 -L[库文件路径] -lxxx，但运行时错误：找不到该动态库
+		原因：链接器链接时被指定了动态库路径，但运行时的动态链接器并不知道动态库所在路径【它默认搜索LD_LIBRARY_PATH】
+		解决方法3种：
+		（1）将库复制到/lib下，运行 ldconfig命令，
+		 	 或将库复制到/usr/lib，不必执行ldconfig命令，现象：会自动放在/lib下，并执行该命令
+		（2）在命令前加环境变量，export LD_LIBRARY_PATH=[动态库文件路径]//临时设置或写配置文件永久
+		（3）修改/etc/ld.so.conf文件，将动态库文件路径加到该文件中，然后ldconfig，系统就会把这个路径作为默认路径
 *************************shell*************************************
 交互：
 	read [-p:接提示字符] [-t:接等待秒数] 【variable】
@@ -223,10 +301,6 @@ sed工具：
 	print '格式' filename
 awk工具：
 	分段处理数据
-文件对比工具：
-	diff -[b:忽略空白差异][B:忽略空白行][i:忽略大小写]   from_file   to_file
-	cmp
-	patch
 文件打印准备
 	pr filename
 账号管理：
@@ -388,17 +462,6 @@ Tarball软件：
 	//m:指libm.so  lib与.a或.so都不用写
 	//-L后指定搜索目录
 	//-I：指定头文件搜索目录
-函式库管理：
-静态函式库：
-	扩展名：.a
-	编译行为：直接整合到执行程序中
-	独立执行状态：可以独立执行
-	升级：若有改动，相关程序都要重新编译	
-动态函式库：
-	扩展名：.so
-	编译行为：在程序中只有一个位置指针
-	独立执行状态：不能被独立执行
-	升级：自己编译即可，相关程序不需编译
 yum:
 	yum -y install 安装软件
 	yum remove 移除软件

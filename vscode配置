@@ -6,3 +6,12 @@ vscode的remote连接时不用每次输入密码：
 	cd 本机的用户下.ssh目录
 	生成钥匙(使用git时已经生成过了，可直接上传) ssh-keygen -t rsa -C "youremail@example.com" 一路enter默认 不设密码
 	将id_rsa.pub内容复制到远程主机的~/.ssh下的authorized_keys文件中即可
+vs2019:
+	match margin插件
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+vs2017配置linux的头文件：
+直接将linux下的/usr/include中的文件复制到VS的头文件目录中即可C:\my_app\VS2017\VS_IDE\Common7\IDE\VC\Linux\include\usr\include
+重启vs
+###############################################################################
+man 不到某些函数：
+	sudo yum install man-pages

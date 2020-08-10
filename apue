@@ -68,9 +68,9 @@ struct stat
 	S_ISDIR()				//目录文件
 	S_ISCHR()				//字符特殊文件
 	S_ISBLK()				//块特殊文件
-	S_ISFIFO()			//管道
+	S_ISFIFO()				//管道
 	S_ISLNK()				//符号连接
-	S_ISSOCK()			//套接字
+	S_ISSOCK()				//套接字
 //该函数按照实际用户ID和实际组ID进行存取许可权测试
 int access(const char *pathname,int mode);
 	测试：	mode			说明
