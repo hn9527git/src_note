@@ -1,6 +1,6 @@
 /下常见文件夹的内容：
 	media：磁盘插载的目录
-	mnt：手动指定
+	mnt：手动挂载
 	proc:进程相关
 	opt:进程相关
 	usr:第三方软件
@@ -30,13 +30,25 @@ man:
 	man 3 stat   //库函数
 	man 5 passwd //文件格式
 	man -k name  //可在man page中搜索字符串
+	1、  一般命令
+	2、  系统调用
+	3、  库函数，涵盖C标准函数库
+	4、  特殊文件（通常是/dev中的设备）和驱动程序
+	5、  文件格式和约定
+	6、  游戏和屏保
+	7、  杂项
+	8、  系统管理命令和守护进程。
 init 3:退出图形界面并进入字符界面
 init 5:回到图形界面，原来的图形界面的进程已死，而且需要重新登陆
 设置开机默认界面（图形或者字符界面）：vim /etc/inittab 不再使用但写有修改默认级别的方法
 系统级环境变量：/etc/profile
 用户级环境变量：~/.bash_profile
 查看二进制文件：hexdump xxd (od -c a.out//按字节查看)
-生成反汇编文件：objdump -dS a.out > out
+生成反汇编文件：objdump -dS a.out > out  | objdump -Dhs test > test.dis
+查看内存布局中各个段的大小：size a.out
+磁盘中存放的只有正文段和初始化数据段
+alloca：
+	从栈上获取一个栈帧，推出作用域时自动释放
 选项-I：
 	<>包含搜索顺序：首先在-I指定的路径中搜索所需的头文件，再去默认/usr/local/include中
 		最后去默认/usr/include中搜索

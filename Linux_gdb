@@ -29,6 +29,8 @@ gdb:
 	ptype x:打印x的类型
 	bt:查看函数的堆栈
 	frame：切换栈帧
+	set follow-fork-mode chlid//跟随子进程
+	set follow-fork mode parent//跟随父进程
 	q:结束调试
 生成反汇编文件：
 	objdump -dS a.out > out

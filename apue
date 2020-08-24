@@ -462,39 +462,6 @@ wait3 & wait4:
 竞态条件：
 	当多个进程都企图对共享数据进行某种处理，而最后的结果又取决于
 	进程运行的顺序时，则我们认为这发生了竞态条件
-exec函数：
-	int execl(const char *pathname, const char * arg0, ... /* (char *) 0 */);
-	int execv(const char *pathname, char *const argv[] );
-	int execle(const char *pathname, const char * arg0, .../* (char *)0, char *const envp[] */);
-	int execve(const char *pathname, char *const argv[], char *const envp[] );
-	int execlp(const char *pathname, const char * arg0, ... /* (char *) 0 */);
-	int execvp(const char *pathname, char *const argv[] );
-	六个函数返回：若出错则为- 1，若成功则不返回
-exec执行新程序的进程保持了原进程的下列特征：
-	• 进程I D和父进程I D。
-	• 实际用户I D和实际组I D。
-	• 添加组I D。
-	• 进程组I D。
-	• 对话期I D。
-	• 控制终端。
-	• 闹钟尚余留的时间。
-	• 当前工作目录。
-	• 根目录。
-	• 文件方式创建屏蔽字。
-	• 文件锁。
-	• 进程信号屏蔽。
-	• 未决信号。
-	• 资源限制。
-	• tms_utime, tms_stime, tms_cutime以及t m s _ u s t i m e值
-	打开文件的处理默认为保持打开，可用fcntl设置exec关闭标志，使其在exec时关闭该描述符
-	有效I D是否改变则取决于所执行程序的文件的设置 -用户- I D位和设置-组- I D位是否设置
-例：
-	int execl(const char *path,const char * arg,...);
-		例：execl("/bin/","ls","-l","/etc/passwd",NULL);
-		要求全路径，最后一个参数必须用空指针NULL结束
-	int execlp(const char *file,const char *arg,...);
-		例:execlp("pwd","",NULL);
-		如果filename包含/，则将其视为路径名，否则从PATH环境变量所指的目录中查找参数file的文件名，找到后执行，后边为参数，NULL结尾
 更改用户ID和组ID
 	int setuid(uid_t uid);
 	int setgid(gid_t gid);
