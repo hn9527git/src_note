@@ -14,3 +14,12 @@
 	CMake suite maintained and supported by Kitware (kitware.com/cmake).
 cmake:
 	跨平台交叉编译工具
+设置编译参数：
+	set(CMAKE_EXE_LINKER_FLAGS "-levent ${CMAKE_EXE_LINKER_FLAGS}")
+添加包含目录：
+	include_directories(C:/Users/HN/Documents/open_source/boost/boost_1_73_gcc/include)
+添加链接目录：
+	link_directories(C:/Users/HN/Documents/open_source/boost/boost_1_73_gcc/lib)
+设置gcc版本：
+	set(CMAKE_C_STANDARD 99)
+

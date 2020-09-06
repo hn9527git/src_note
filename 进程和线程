@@ -39,7 +39,7 @@ fork后进程相同：
 线程优点：//比较突出
 	提高程序并发性、开销小、数据通信、共享数据更方便
 线程缺点：
-	库函数，不稳定，编写调试困难、gdb不支持，对信号支持不好
+	库函数，不稳定，编写调试困难，对信号支持不好
 线程函数遇到错误时并不设置标准unix的error变量
 	而是把errno的值作为函数返回值返回调用者。
 线程ID：
@@ -70,44 +70,33 @@ int pthread_create(pthread_t *pid,const pthread_attr_t *attr,void *(*start_routi
 				  非分离线程可在主线程中使用pthread_join函数等待子线程的结束
 			后者：在线程创建时或创建后调用，改为unjoinable状态，线程退出时自动释放所占资源。
 				  分离线程没有pthread_join函数，可以让主线程先退出而进程不退出，一直等到子线程退出了进程才退出。
-				  在main线程中执行pthread_exit终止main线程，但进程的资源会为main线程
-				  创建的其他线程保持打开的状态，直到其他线程都终止。（非main线程中调用pthread_exit函数，只退出当前线程）
+				  在main线程中执行pthread_exit终止main线程，但进程的资源会为main线程创建的其他线程保持打开的状态，
+				  直到其他线程都终止。（非main线程中调用pthread_exit函数，只退出当前线程）
 		分离线程：
-			线程默认是非分离的，父线程会维护子线程的某些信息并等待子线程的结束，如果父线程没有调用pthread_wait函数，
+			线程默认是非分离的，父线程会维护子线程的某些信息并等待子线程的结束，如果父线程没有调用pthread_join函数，
 			子进程结束时，父线程维护的信息没有及时释放，如果创建多个子线程，可能堆栈空间不足出错返回
 		分离：
 			（1）int pthread_detach(id)；//线程创建完成后，将id指定的线程设置为分离线程
 			（2）创建时设置分离属性	pthread_attr_init(&thread_attr);
 									pthread_attr_setdetachstate(&thread_attr,PTHREAD_CREATE_DETACHED);
-									pthread_attr_getdetachstate(&thread_attr,);
-									pthread_create(,&thread_attr,,);
+									pthread_attr_getdetachstate(&thread_attr,);//查看
+									pthread_create(&tid,&thread_attr,func,NULL);
 									pthread_attr_destory();
 	调度策略和参数：
 		实时与非实时：前者通过优先级来抢占cpu，Linux是一个非实时系统，但其线程也分实时和非实时！
 		（1）SCHED_OTHER（分时调度策略）默认
 		（2）SCHED_FIFO（先来先服务）
 		（3）SCHED_RR（时间片轮循）
-	作用域：
 	栈尺寸：
 		//获取线程默认栈尺寸的函数,//首尾工作同上
 		int pthread_attr_getstacksize(pthread_attr_t *geted_attr,size_t *stacksize);
-	栈地址：
 	优先级：
 		//获得最大或最小优先级函数
 		int sched_get_priority_min(int policy);//参数为三种策略，返回值为优先级数
-		-----------------------max-----------------------------//同上
-	等
 int pthread_join(pthread_t pid,void **value_ptr);
 	-- pid:等待的线程号
 	-- value_ptr：复制一份线程退出值到一个内存区域中，该指针指向该内存
 	-- 成功返回0，失败返回错误码
-退出：
-	exit()函数是退出进程！！！
-	return返回函数调用者
-	pthread_exit(NULL);结束本线程，对其他线程没有影响，返回线程退出状态，通常为NULL
-	pthread_cancel(tid);结束指定线程，接收到结束请求的线程会终止运行
-	在处理重要数据时可以设置为不接受结束请求（阻塞），pthread_setcancelstate，
-	等待线程结束pthread_join()，也可以设置分离线程，由系统回收线程资源；
 特点：
 	创建线程比创建进程的系统开销低
 	线程之间的通信简单快速
@@ -117,17 +106,6 @@ int pthread_join(pthread_t pid,void **value_ptr);
 线程标识符
 	获取自身标识符：pthread_self()
 	比较标识符：pthread_equal(1,2)
-创建线程：
-	int pthread_create(pthread_t * id,pthread_attr_t * attr,void *(*start_routine)(void *),void * arg);
-	-- id:传入即可，创建成功则把标识符放进去
-	-- attr:设置属性
-	-- start_routine:线程开始运行的函数，用户指定
-	-- arg:第三个函数所需的参数
-线程阻塞和退出：
-	int pthread_join(pthread_t thread,void ** retval);//阻塞等待线程退出
-	-- thread：要等待的线程id
-	-- retval:保存其他线程返回的参数
-	void pthread_exit(void * retval);//线程主动退出
 取消和清理线程：
 	int pthread_cancle(id);//请求取消同一进程中的其他线程，返回0，失败返回错误码
 		-- 本函数不一定能取消陷入死循环的线程
@@ -276,13 +254,75 @@ int pthread_join(pthread_t pid,void **value_ptr);
 			--唤醒所有等待该条件变量的线程
 	条件变量解除函数：
 		int pthread _cond_destory(pthread_cond_t *cond);
-
 可重入函数：
 	一个函数没有执行完成，有一次进入该函数执行
 	可重入表示该函数被重入之后不会产生任何不良后果，可在多线程环境下放心使用
 --------------------------------------线程池-------------------------------------------------------------------
 提前创建一堆线程，初始都处于空闲等待状态，当有任务时，就取一个线程来处理，处理后再放进线程池中，避免了创建销毁线程的开销
 适用于连续产生大量并发任务的场合
+//任务结构体
+struct thread_task_t
+{
+    void* (*func)(void *);         //任务，即回调函数
+    void* arg;                     //回调函数的参数
+};
+//线程池结构体
+struct thread_pool_t
+{
+    pthread_mutex_t mutex;         //用于锁住本结构体
+    pthread_mutex_t thread_counter;//用于获取忙碌线程状态个数的锁
+    
+    pthread_cond_t queue_not_full; //当任务队列满时，添加任务的线程阻塞，等待此条件变量
+    pthread_cond_t queue_not_empty;//当任务队列不为空时，通知等待任务的线程
+
+    pthread_t *threads;            //存放线程池中每个线程的tid，数组
+    pthread_t adjust_tid;          //线程池管理者线程
+
+    thread_task_t* task_queue;      //任务队列首地址
+
+    int min_thread_num;            //线程池最小线程数
+    int max_thread_num;            //线程池最大线程数
+    int live_thread_num;           //当前存活的线程数
+    int busy_thread_num;           //忙状态线程数
+    int wait_exit_thread_num;      //等待退出线程数
+
+    int queue_begin;               //任务队列队头下标
+    int queue_end;                 //任务队列队尾下标
+    int queue_size;                //任务队列中实际任务数
+    int queue_max_size;            //任务队列最大能容纳的任务数
+
+    int shutdown;                  //线程池使用状态
+};
+1、创建线程池
+	为线程池自身、线程ID数组、任务队列申请空间
+	初始化锁和条件变量
+	根据参数初始化其他变量，并创建最小数量的线程
+	创建管理者线程
+2、线程执行函数
+	对线程池加锁，等待任务队列有任务(条件变量)
+		如果一直没任务，并接收到有任务通知，就判断需要结束的闲线程是否大于最小保留线程数，符合则自杀
+	有任务则跳出循环，从任务队列头部取一个任务
+	通知阻塞在添加任务这个条件变量的线程有空位，可以继续添加任务
+	将池中忙线程数+1
+	调用任务中的函数指针去处理任务
+	将池中忙线程数-1
+	循环
+3、管理者线程函数
+	睡眠默认时间
+	取出池中属性
+	根据算法判断是否需要加减线程
+	循环
+4、添加任务函数
+	判断任务队列是否有空(条件变量)
+	判断是否是停用线程池
+		是的话通知其他线程有任务可取
+	将任务放在队尾
+	通知其他线程有任务可取
+
+
+
+
+
 
 	
 	

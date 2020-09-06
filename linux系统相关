@@ -2,37 +2,33 @@
 		所有的操作系统都提供多种服务的入口点，由此程序向内核请求服务。各种版本的 U N I X
 	都提供经良好定义的有限数目的入口点，经过这些入口点进入内核，这些入口点被称为系统调
 	用(system call)。系统调用是不能更改的一种 U N I X特征。
-
-应用程序可以调用系统调用或者库函数，而很多库函数则会调用系统调用。
-
-系统调用和库函数之间的另一个差别是：系统调用通常提供一种最小界面，而库函数通常提供比较复杂的功能
-
-文件IO：//常用五大函数：open、read、write、lseek、close,称之为不带缓存的I/O
-
-不带缓存：指的是每个read和write都调用内核中的一个系统调用
-
+	-- 应用程序可以调用系统调用或者库函数，而很多库函数则会调用系统调用。
+	-- 系统调用和库函数之间的另一个差别是：系统调用通常提供一种最小界面，而库函数通常提供比较复杂的功能
+文件IO：
+	//常用五大函数：open、read、write、lseek、close,称之为不带缓存的I/O
+不带缓存：
+	指的是每个read和write都调用内核中的一个系统调用
 粘住位：rwxrwxrwt中的t
 	// chmod o+t file_name  对目录使用
 	例如/tmp：任何用户可以在其中创建文件，只有自己和root可以删除
-
-UNIX提供了一种方法使这种操作成为原子操作，其方法就是在打开文件时设置O_APPEND标志。这就使内核每次对这种文件
-	进行写之前，都将进程的当前位移量设置到该文件的尾端处，于是在每次写之前就不再需要调用lseek。
-	
-如果一个进程首先测试文件是否存在，不存在则创建，这在多进程情况下也是不可行的。
+	如果可执行程序文件设置了粘住位，当该程序第一次执行并结束时，该程序的正文文本被保存在交换区，
+	使得下次执行该程序时能较快地将其装入内存区
+在打开文件时设置O_APPEND标志//写的时候就是原子操作
+	这就使内核每次对这种文件进行写之前，都将进程的当前位移量设置到该文件的尾端处，于是在每次写之前就不再需要调用lseek。
+如果一个进程首先测试文件是否存在，不存在则创建，这在多进程情况下是不可行的。
 	open函数的O_CREAT和O_EXCL选择项，使得这两步成为一个原子操作。
-
 shutdown(int fd,int flags);
 	只要发送了shutdown，无论复制出多少文件描述符，套接字都会发送EOF并进入半关闭状态
-
+	如果使用shutdown关闭了读和写，那么所有复制的套接字都关闭了//相当于静态属性
 int dup(int fd) 
 	//复制文件描述符：返回当前可用最小文件描述符
 int dup2(int fd,int fd2)
-	//复制文件描述符并指定值，新的为fd2（存在则先关闭）
+	//复制文件描述符并指定值，新的为fd2（存在则先关闭），
 fcntl函数：
 	int fcntl(int filedes,int cmd,...);
 	五种功能：
 	（1）复制一个现存的描述符（cmd=F_DUPFD）
-	（2）获得/设置文件描述符在exec时是否关闭标志（cmd=F_GETFD或F_SETFD）
+	（2）获得/设置文件描述符在exec时是否关闭 （cmd=F_GETFD或F_SETFD）
 				当前只定义了一个文件描述符标志FD_CLOSEEXEC //默认0，exec时不关闭文件描述符，1关闭
 	（3）获得/设置文件状态标志（cmd=F_GETFL或F_SETFL）
 				O_RDONLY	O_WRONLY	O_RDWR只能选一个
@@ -52,16 +48,16 @@ int lstat(const char *pathname,struct stat *buf);
 	//类似stat函数，但当pathname是符号连接时，返回符号连接的信息
 struct stat
 {
-		dev_t     st_dev;         /* ID of device containing file */
-    ino_t     st_ino;         /* inode number */
-    mode_t    st_mode;        /* file type and mode */
-    nlink_t   st_nlink;       /* number of hard links */
-    uid_t     st_uid;         /* user ID of owner */
-    gid_t     st_gid;         /* group ID of owner */
-    dev_t     st_rdev;        /* device ID (if special file) */
-    off_t     st_size;        /* total size, in bytes */
-    blksize_t st_blksize;     /* blocksize for filesystem I/O */
-    blkcnt_t  st_blocks;
+	dev_t     st_dev;         /* ID of device containing file */文件设备编号
+    ino_t     st_ino;         /* inode number */                文件占用的inode ID
+    mode_t    st_mode;        /* file type and mode */          文件类型
+    nlink_t   st_nlink;       /* number of hard links */        硬链接个数
+    uid_t     st_uid;         /* user ID of owner */            用户ID
+    gid_t     st_gid;         /* group ID of owner */           组ID
+    dev_t     st_rdev;        /* device ID (if special file) */ 特殊文件设备ID
+    off_t     st_size;        /* total size, in bytes */        文件总大小
+    blksize_t st_blksize;     /* blocksize for filesystem I/O */文件IO块大小
+    blkcnt_t  st_blocks;                                        文件占用IO块个数
 }
 测试宏：
 	S_ISREG(stat.st_mode)	//是否为普通文件
@@ -86,8 +82,8 @@ int chmod(const char *pathname,mode_t mode);
 int fchmod(int fd,mode_t mode);
 	//设置已打开的文件的权限
 	mode 			说 明
-	S_ISUID 	执行时设置-用户- I D
-	S_ISGID 	执行时设置-组- I D
+	S_ISUID 	执行时设置-用户- ID
+	S_ISGID 	执行时设置-组- ID
 	S_ISVTX 	保存正文//粘住位，只有拥有文件者|目录者|root才可以删除，例/tmp
 	S_IRWXU 	用户（所有者）读、写和执行
 	S_IRUSR 	用户（所有者）读
@@ -101,9 +97,6 @@ int fchmod(int fd,mode_t mode);
 	S_IROTH 	其他读
 	S_IWOTH 	其他写
 	S_IXOTH 	其他执行
-粘住位：
-	如果可执行程序文件设置了粘住位，当该程序第一次执行并结束时，该程序的正文文本
-	被保存在交换区，使得下次执行该程序时能较快地将其装入内存区
 int chown(const char *path, uid_t owner, gid_t group);
 	//更改文件用户ID或组ID
 int fchown(int fd, uid_t owner, gid_t group);
@@ -133,8 +126,7 @@ int rename(const char *oldname,const char *newname);
 	在（而且是一个空目录），则先将其删除，然后将 o l d n a m e更名为n e w n a m e。另外，当为一个目
 	录更名时， n e w n a m e不能包含 o l d n a m e作为其路径前缀。例如，不能将 / u s r / f o o更名为
 	/ u s r / f o o / t e s t d i r，因为老名字（/ u s r / f o o）是新名字的路径前缀，因而不能将其删除。
-	(3) 作为一个特例，如果o l d n a m e和n e w n a m e引用同一文件，则函数不做任何更改而成功返
-	回。
+	(3) 作为一个特例，如果o l d n a m e和n e w n a m e引用同一文件，则函数不做任何更改而成功返回。
 	如若n e w n a m e已经存在，则调用进程需要对其有写许可权（如同删除情况一样）。另外，
 	调用进程将删除o l d n a m e目录项，并可能要创建 n e w n a m e目录项，所以它需要对包含 o l d n a m e及
 	包含n e w n a m e的目录具有写和执行许可权。
@@ -147,11 +139,11 @@ int readlink(const char *pathname,char *buf,int bufsize);
 	mtime：最后修改时间 			例：write		默认显示
 	ctime：i节点状态最后修改时间	例：chmod chown ls -c
 int utime(const char *pathname,const struct utime *times);
+		//修改文件的存取时间和最后修改时间
 struct utime{
 	time_t atime;
 	time_t modtime;
 }
-	//修改文件的存取时间和最后修改时间
 int mkdir(const char *pathname,mode_t mode);
 	//创建一个空目录
 int rmdir(const char *pathname);
@@ -189,7 +181,7 @@ int fflush(FILE *fp);
 		在一个特定的流上打开一个指定的文件，若流已打开先关闭
 	FILE *fdopen(int *fd,const char *type);
 		使一个现存的文件描述符与标准I/O流相结合
-	type:指定对该I/O流得读写方式(15种)r、w、a、b、+
+	type:指定对该I/O流的读写方式(15种)r、w、a、b、+
 关闭流：
 	int fclose(FILE *fp);
 当一个进程正常终止时，则所有带未写缓存数据的标准I/O流都被刷新，所有打开的标准I/O流都被关闭。
@@ -336,25 +328,37 @@ struct tm {
 C程序的存储空间布局
 	【1】正文段：CPU执行的机器指令，一般只读
 	【2】初始化数据段：包含了程序中需要赋初值的变量
-	【3】非初始化数据段：bss("block started by symbol"由符号开始的段)段，程序开始之前内核将其初始化为0
+	【3】未初始化数据段：bss("block started by symbol"由符号开始的段)段，程序开始之前内核将其初始化为0
 	【4】栈：自动变量以及每次函数调用时所需保存的信息都存在此段中。
 	【5】堆：用于动态存储分配，位于非初始化数据段顶和栈底之间
-	-----------------内存分配-------------------|
-	内存高地址                                  |
-	      ---------------命令行参数和环境变量   |
-	栈：  ---------------向下生长               |
-	堆：  ---------------向上生长               |
-	未初始化的数据-------由内核exec赋初值0      |
-	初始化的数据---------由内核exec从程序中读到 |
-	正文：---------------由内核exec从程序中读到 |
-	内存低地址                                  |
-	--------------------------------------------|
+内存布局：
+	高地址-----------------------
+		内核空间：main参数、环境变量
+		栈：
+		堆栈中间：动态库加载位置
+		堆：
+		.data:未初始化区         \链接时      ---由内核exec初始化为0
+		.bss:初始化区            /合并为读写段 |
+ 		.rodata:只读数据区       \链接时       |--由内核exec从程序中读到
+		.text:代码段             /合并为只读段 |
+	低地址-----------------------
+举例：
+	main参数：		0x7fffffffdf40
+	环境变量：		0x7fffffffde30
+	栈内数据：		0x7fffffffde2c
+	堆内数据：		0x603010
+	未初始化静态变量0x6022dc
+	未初始化全局变量0x6022d4
+	初始化全局变量  0x602094
+	初始化静态变量  0x602090
+	字面值常量地址：0x400d6a
+	代码地址：  	0x40098d
 共享库：
 	使得可执行文件中不再需要包含常用的库函数，而只需要在所有进程都可以存取的存储区中
 	保存一个副本，程序第一次执行或第一次调用某个库函数时，使用动态链接使之相连，减少了
 	每个可执行文件的长度，但增加了一些运行时间开销。
-	优点：库函数的新版本代替老版本，不用重新连接编辑
-存储器分配：
+	优点：库函数的新版本代替老版本，不用重新编译
+存储器分配空间：
 	（1）void *malloc(size_t size);
 		//分配指定字节数的存储区，初始值不确定
 	（2）void *calloc(size_t nobj,size_t size);
@@ -370,15 +374,10 @@ C程序的存储空间布局
 		//取name=value字符串放到环境表中，若已存在，删除原来的定义
 	int setenv(const char *name,const char *value,int rewrite);
 		//同上，但若已存在需参考参数rewrite
-		//1.rewrite非0，同上2.为0，不删除，返回不出错
+		//rewrite非0，同上
+		//       为0，不删除，返回不出错
 	void unsetenv(const char *name);
 		//删除指定的变量，不存在也不出错
-跳转功能函数
-	int setjmp(jmp_buf env);
-	void longjmp(jmp_buf env,int val);
-	先使用setjmp()函数，将所需的信息记入变量jmpbuffer中并返回0；
-	需要时调用longjmp()函数，使setjmp返回，但返回值为1；
-	定义自动变量为volatile，和说明为全局和静态变量的值在执行longjmp时保持不变
 资源限制：
 	int getrlimit(int resource,struct rlimit *rlim);
 	int setrlimit(int resource,const rlimit *rlim);
@@ -406,12 +405,12 @@ fork函数：
 	后者使用exit退出时，将关闭所有I/O流，导致父进程也不能用，因为他是在父进程的空间中关闭的
 父进程由子进程继承的性质：
 	• 打开文件
-	• 实际用户I D、实际组I D、有效用户I D、有效组I D。
-	• 添加组I D。
-	• 进程组I D。
-	• 对话期I D。
+	• 实际用户ID、实际组ID、有效用户ID、有效组ID。
+	• 添加组ID。
+	• 进程组ID。
+	• 对话期ID。
 	• 控制终端。
-	• 设置-用户- I D标志和设置-组- I D标志。
+	• 设置-用户-ID标志和设置-组-ID标志。
 	• 当前工作目录。
 	• 根目录。
 	• 文件方式创建屏蔽字。
@@ -422,8 +421,8 @@ fork函数：
 	• 资源限制。
 父、子进程之间的区别是：
 	• fork的返回值。
-	• 进程I D。
-	• 不同的父进程I D。
+	• 进程ID。
+	• 不同的父进程ID。
 	• 子进程的t m s _ u t i m e , t m s _ s t i m e , t m s _ c u t i m e以及t m s _ u s t i m e设置为0。
 	• 父进程设置的锁，子进程不继承。
 	• 子进程的未决告警被清除。
@@ -439,13 +438,13 @@ wait():
 waitpid()：
 	pid_t waitpid(pid_t pid,int * statloc,int options);//返回终止子进程ID或0，失败返回-1
 		--  pid:
-			• pid == -1 等待任一子进程。于是在这一功能方面w a i t p i d与w a i t等效。
-			• pid > 0 等待其进程I D与p i d相等的子进程。
-			• pid == 0 等待其组I D等于调用进程的组I D的任一子进程。
-			• pid < -1 等待其组I D等于p i d的绝对值的任一子进程。
-		-- statloc:接受信息
+			• pid == -1 等待任一子进程。于是在这一功能方面w a i t p id与w a i t等效。
+			• pid > 0 等待其进程ID与p id相等的子进程。
+			• pid == 0 等待其组ID等于调用进程的组ID的任一子进程。
+			• pid < -1 等待其组ID等于p id的绝对值的任一子进程。
+		-- statloc:接收信息
 		-- options:传递头文件中的声明的常量WNOHANG，即使没有终止的子进程也不会进入阻塞，返0退出
-			• WUNTRACED:若某实现支持作业控制，则由 p i d指定的任一子进程状态已暂停，且其状态自暂
+			• WUNTRACED:若某实现支持作业控制，则由 p id指定的任一子进程状态已暂停，且其状态自暂
 				停以来还未报告过，则返回其状态。 W I F S TO P P E D宏确定返回值是否对应于一个暂停子进程
 判断返回情况：
 	WIFEXITED(status):子进程正常结束返回真
@@ -469,15 +468,15 @@ wait3 & wait4:
 	2.若进程没有超级用户特权，但是uid等于实际用户ID或保存得设置用户ID，以及保存的设置用户ID为uid，则setuid只将有效用户设置为uid
 	3.若以上条件都不满足，则errno设置为EPERM,并返回错误
 内核维护的三个用户ID：
-	(1) 只有超级用户进程可以更改实际用户 I D。通常，实际用户 I D是在用户登录时，由
-			l o g i n ( 1 )程序设置的，而且决不会改变它。因为 l o g i n是一个超级用户进程，当它调用 s e t u i d时，
-			设置所有三个用户I D。
-	(2) 仅当对程序文件设置了设置-用户- I D位时，e x e c函数设置有效用户 I D。如果设置-用
-			户- I D位没有设置，则e x e c函数不会改变有效用户 I D，而将其维持为原先值。任何时候都可以
-			调用s e t u i d，将有效用户I D设置为实际用户I D或保存的设置-用户- I D。自然，不能将有效用户
-			I D设置为任一随机值。
-	(3) 保存的设置-用户- I D是由e x e c从有效用户I D复制的。在e x e c按文件用户I D设置了有效用
-			户I D后，即进行这种复制，并将此副本保存起来。
+	(1) 只有超级用户进程可以更改实际用户 ID。通常，实际用户 ID是在用户登录时，由
+			l o g i n ( 1 )程序设置的，而且决不会改变它。因为 l o g i n是一个超级用户进程，当它调用 s e t u id时，
+			设置所有三个用户ID。
+	(2) 仅当对程序文件设置了设置-用户- ID位时，e x e c函数设置有效用户 ID。如果设置-用
+			户- ID位没有设置，则e x e c函数不会改变有效用户 ID，而将其维持为原先值。任何时候都可以
+			调用s e t u id，将有效用户ID设置为实际用户ID或保存的设置-用户- ID。自然，不能将有效用户
+			ID设置为任一随机值。
+	(3) 保存的设置-用户- ID是由e x e c从有效用户ID复制的。在e x e c按文件用户ID设置了有效用
+			户ID后，即进行这种复制，并将此副本保存起来。
 交换实际用户ID和有效用户ID的值
 	int setreuid(uid_t ruid,uid_t euid);
 	int setregid(git_t rgid,gid_t egid);
@@ -504,14 +503,14 @@ wait3 & wait4:
 system函数也可以创建进程
 	int system(const char * cmdstring)；
 	该函数执行过程：1.fork()2.子进程中调用exec执行cmdstring3.父进程等待子进程返回结束。
-	如果一个进程正以特殊的许可权 (设置-用户-I D或设置-组-I D )运行，它又想生成另一个进
+	如果一个进程正以特殊的许可权 (设置-用户-ID或设置-组-ID )运行，它又想生成另一个进
 		程执行另一个程序，则它应当直接使用fork和exec，而且在fork之后exec之前要改回到普通许可权。
 	设置用户ID或设置组ID程序决不能调用system函数(因为超级用户权限会被system保持下来)	
 	优点：
 			system进行了所需的各种出错处理，以及各种信号处理	
 进程会计：
 	设置后，每当进程结束时内核就写一个会计记录，典型的会计记录是 3 2字节长的二进制数据，包括命令名、
-	所使用的C P U时间总量、用户I D和组I D、起动时间等
+	所使用的C P U时间总量、用户ID和组ID、起动时间等
 	启动、结束：accton
 	每个进程一个会计记录
 获得用户登录名：
@@ -861,7 +860,7 @@ int pclose(FILE * fp);
 		键字创建一个新的 I P C结构。这种方法的问题是该关键字可能已与一个 I P C结构相结合，在此
 		情况下，g e t函数（m s g g e t、s e m g e t或s h m g e t）出错返回。服务器必须处理这一错误，删除已存
 		在的I P C结构，然后试着再创建它。
-	(3) 客户机和服务器认同一个路径名和课题 I D（课题I D是0 ~ 2 5 5之间的字符值），然后调用
+	(3) 客户机和服务器认同一个路径名和课题 ID（课题ID是0 ~ 2 5 5之间的字符值），然后调用
 		函数f t o k将这两个值变换为一个关键字（函数f t o k在手册页s t d i p c（3）中说明）。然后在方法( 2 )
 		中使用此关键字。
    许可权结构：
@@ -989,7 +988,7 @@ int pclose(FILE * fp);
 			i. 此信号量变成大于或等于s e m _ o p的绝对值（即某个进程已释放了某些资源）。此信号
 				量的s e m n c n t值减1（因为已结束等待）,并且从信号量值中减去s e m _ o p的绝对值。如
 				果指定了u n d o标志,则s e m _ o p的绝对值也加到该进程的此信号量调整值上。
-			ii. 从系统中删除了此信号量。在此情况下，函数出错返回E R M I D。
+			ii. 从系统中删除了此信号量。在此情况下，函数出错返回E R M ID。
 			iii. 进程捕捉到一个信号，并从信号处理程序返回，在此情况下，此信号量的 s e m n c n t值
 				减1（因为不再等待），并且函数出错返回E I N T R .
 		3.若sem_op为0，这表示希望等待到该信号量值变成0。
@@ -999,7 +998,7 @@ int pclose(FILE * fp);
 			(b) 若未指定I P C _ N O WA I T，则该信号量的s e m n c n t值加1（因为将进入睡眠状态），然
 			后调用进程被挂起，直至下列事件之一发生：
 			i. 此信号量值变成0。此信号量的s e m z c n t值减1（因为已结束等待）。
-			ii. 从系统中删除了此信号量。在此情况下，函数出错返回E R M I D。
+			ii. 从系统中删除了此信号量。在此情况下，函数出错返回E R M ID。
 			iii. 进程捕捉到一个信号，并从信号处理程序返回。在此情况下，此信号量的 s e m z c n t值
 			减1（因为不再等待），并且函数出错返回E I N T R .
 			s e m o p具有原子性，因为它或者执行数组中的所有操作，或者一个也不做。
@@ -1084,3 +1083,47 @@ int pclose(FILE * fp);
 
 
 
+
+
+exec函数：
+	一般规律：
+		l(list):命令行参数列表
+		p(path):搜索file时使用path
+		v(vector):使用命令行参数数组
+		e(envioronment):使用环境变量数组设置新加载程序运行的环境变量，不使用进程原有的环境变量
+	int execl(const char *pathname, const char * arg0, ... /* (char *) 0 */);
+		execl("/bin/ls","-l",NULL);//使用路径和文件名加载进程
+	int execlp(const char *file, const char * arg0, ... /* (char *) 0 */);
+		//借助环境变量PATH使用，如果PATH找不到这个可执行文件则出错返回
+		//通常调用系统程序
+		execlp("ls","ls","-l",NULL);
+	int execle(const char *pathname, const char * arg0, .../* (char *)0, char *const envp[] */);
+	int execv(const char *pathname, char *const argv[] );
+	int execvp(const char *file, char *const argv[] );
+		//将参数放进数组里
+		char* argv[] = {"ls","-l",NULL};
+		execvp("ls",argv);
+	int execve(const char *pathname, char *const argv[], char *const envp[] );
+		//真正的系统调用，放在卷2，其余放在卷3
+	六个函数返回：若出错则为- 1，若成功则不返回
+exec执行新程序的进程保持了原进程的下列特征：
+	• 进程ID和父进程ID。
+	• 实际用户ID和实际组ID。
+	• 添加组ID。
+	• 进程组ID。
+	• 对话期ID。
+	• 控制终端。
+	• 闹钟尚余留的时间。
+	• 当前工作目录。
+	• 根目录。
+	• 文件方式创建屏蔽字。
+	• 文件锁。
+	• 进程信号屏蔽。
+	• 未决信号。
+	• 资源限制。
+	• tms_utime, tms_stime, tms_cutime以及t m s _ u s t i m e值
+	打开文件的处理默认为保持打开，可用fcntl设置exec关闭标志，使其在exec时关闭该描述符
+	有效ID是否改变则取决于所执行程序的文件的设置 -用户- ID位和设置-组- ID位是否设置
+进程的文件描述符关系：
+	PCB进程控制块--》打开的文件描述符表--》文件描述符--》文件状态标志，偏移量，v节点指针包含(v节点、i节点、文件长度)
+	其中v节点指针各个打开同一文件的文件描述符共享

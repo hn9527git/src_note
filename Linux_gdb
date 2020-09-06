@@ -20,6 +20,7 @@ gdb:
 	s(step):进入函数，单步调试
 	finish:退出函数
 	info b (break):查看断点信息
+	info inferiors:查看进程信息
 	b if i=x:在循环或递归时设置参数等于x时停下//条件断点
 	r(run):运行
 	display i:之后每步执行都会打印i的值
@@ -28,10 +29,18 @@ gdb:
 	p i:打印相关值
 	ptype x:打印x的类型
 	bt:查看函数的堆栈
+	where: 查看函数堆栈
 	frame：切换栈帧
 	set follow-fork-mode chlid//跟随子进程
-	set follow-fork mode parent//跟随父进程
+	set follow-fork-mode parent//跟随父进程
 	q:结束调试
+线程相关：
+	可通过pstree -p 主线程ID 查看各个线程的关系
+	gdb attach 主线程id:调试某个线程
+	info threads:查看所有线程，会显示内部的ID
+	thread ID:切换到指定线程
+	thread apply ID n:继续使某一线程运行
+	set scheduler-locking on:只运行当前线程  off:默认所有线程并发执行
 生成反汇编文件：
 	objdump -dS a.out > out
 gdb分析coredump文件：#该文件为服务不能正常响应时的操作系统信息的快照
@@ -40,6 +49,13 @@ gdb分析coredump文件：#该文件为服务不能正常响应时的操作系�
 	或 gdb a.out
 	   执行run//运行到出错的地方
 	where 显示调用过程
+查看core文件生成位置：
+	cat /proc/sys/kernel/core_pattern
+查看core文件头信息：
+	readelf -h core.*
+查看core大小限制：
+	ulimit -c
+	ulimit -c [size] //修改
 top:
 	当前时间：运行时间：运行用户数：负载(1min,5min,15min)
 	进程总数：运行总数：睡眠总数：停止总数：僵尸总数
