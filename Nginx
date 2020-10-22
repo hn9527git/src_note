@@ -1,0 +1,89 @@
+基本概念：
+	是什么？
+		服务器软件，Nginx (engine x) 是一个高性能的HTTP和反向代理web服务器，同时也提供了IMAP/POP3/SMTP服务，
+		占有内存少、并发能力强、稳定性高、丰富的功能集、示例配置文件和低系统资源的消耗而闻名
+		可支持五万个并发连接
+	能做什么？
+		反向代理、负载均衡、动静分离
+安装：
+	//需要的依赖prce、openssl、zlib
+	yum -y install prce openssl zlib
+	tar -zxvf nginx.tar.gz
+	make&&make install
+	安装成功之后会在 /usr/local/nginx 目录下存放相关命令和文件
+启动：
+	cd /usr/local/nginx/sbin
+	./nginx
+防火墙相关：
+	查看开放的端口号：firewall-cmd --list-all
+	设置开放某个端口号：
+		firewall-cmd --add-service=http -permanent
+		sudo firewall-cmd --add-port=80/tcp -permanent
+	重启防火墙：
+		firewall-cmd --reload
+常用命令：
+	//必须进入到/usr/local/nginx/sbin目录下才能执行相关命令，因为路径没有加入环境变量中
+	1、查看版本号
+		./nginx -v
+	2、启动nginx
+		./nginx
+	3、关闭nginx
+		./nginx -s stop
+	4、重新加载nginx
+		修改配置文件后不重启重新加载
+		./nginx -s reload
+配置文件：
+	默认位置：/usr/local/nginx/conf/nginx.conf
+	1、由三部分组成
+		全局块：从配置文件开始到events块之间的内容，用来设置运行nginx服务器的用户和组，允许生成的worker process数，进程PID存放路径，
+				日志存放路径和类型以及配置文件的引入
+				比如 worker_processes  1;//该值越大可以支持的并发处理数量就越多，但会受到硬件和软件等设备的制约
+		events块：
+			影响nginx服务器和用户的网络链接
+			比如 worker_connections  1024;//支持的最大连接数
+		http块：
+			配置最频繁的部分，代理、缓存和日志定义等绝大多数功能和第三方模块的配置都在这里
+			http全局块：
+				包括文件引入、MIME-TYPE定义、日志自定义、链接超时时间、单链接请求数上限等。
+			server块：
+				全局server:
+					监听端口、主机名、
+				location块
+nginx配置实例
+	1、反向代理
+		正向代理：如果把局域网外的Internet当作巨大的资源库，则局域网中的客户端要访问Internet，则需要通过代理服务器来访问，
+			  	  这种代理服务器就称为正向代理.需要在客户端设置代理服务器
+		反向代理：客户端对代理是无感的，只需要将请求发送到代理服务器，由反向代理服务器去选择目标服务器获取数据后返回给客户端
+				  暴露的只是代理服务器地址，隐藏了真正的服务器IP地址
+	2、负载均衡
+		负载均衡（Load Balance）其意思就是分摊到多个操作单元上进行执行，例如Web服务器、FTP服务器、企业关键应用服务器和其它
+		关键任务服务器等，从而共同完成工作任务。
+		1、轮询方式
+			如果某个down掉，自动剔除
+			upstream myserver{server 111.229.23.108:8888;server 111.229.23.108:8080;}
+			然后在server中设置 proxy_pass http://myserver
+		2、权值方式
+			给负载服务器设置权值，权值越大分配的客户端越多。
+			upstream server_pool{server 111.229.23.108 weight=5;server 111.229.23.109 weight=10;}
+		3、ip_hash方式
+			upstream myserver{ ip_hash; server 111.229.23.108:8888;server 111.229.23.108:8080;}
+			同一个ip使用一个负载服务器，解决了session问题
+		4、fair方式
+			根据响应时间分配，响应时间短的优先分配
+			upstream myserver{server 111.229.23.108:8888;server 111.229.23.108:8080;fair}
+	3、动静分离
+		为了加快网站的解析速度，可以把动态页面和静态页面分开。
+		动静分离是指在web服务器架构中，将静态页面与动态页面或者静态内容接口和动态内容接口分开不同系统访问的架构设计方法，进而提升整个
+		服务访问性能和可维护性。
+		1、将静态页面和动态页面放在不同的服务器上
+		2、将静态页面和动态页面放在一起，通过nginx分开
+nginx配置高可用集群
+	解决nginx宕机了，怎么让服务正常运行
+	两台nginx：主备模式，主服务器挂掉了，就自动切换到备服务器，这就是高可用效果
+		master:192.168.17.129
+		backup:192.168.17.138
+	高可用准备工作：
+		1、两台服务器上安装nginx和keepalived
+		2、修改keepalived配置文件/etc/keepalived/keepalived.conf
+		3、
+nginx原理

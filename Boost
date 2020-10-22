@@ -21,7 +21,8 @@ Cmake使用boost：
 	//这个必须放在库文件路径下方，否则找不到库文件，也可以将库文件路径放在环境变量中，此处不再指定库文件路径
 	add_executable(test_boost main.cpp)
 boost::timer、progress_timer在linux上如果使用了sleep()函数，流逝时间是0
-	推其原因在于linux平台上sleep时，clock是获得CPU被使用的时间。而这时进程会等待一个signal，这一段时间CPU不会被使用，clcok()认为时间没有流逝所致。而windows平台却是认为Sleep时也是有时间流逝的，而不是看CPU有没有被使用
+	推其原因在于linux平台上sleep时，clock是获得CPU被使用的时间。而这时进程会等待一个signal，这一段时间CPU不会被使用，clcok()认为时间没有流
+	逝所致。而windows平台却是认为Sleep时也是有时间流逝的，而不是看CPU有没有被使用
 
 
 

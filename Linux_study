@@ -7,7 +7,8 @@
 	boot:开机启动程序
 	root:管理员目录
 du //磁盘使用 u-user
-	du -h 指定某个目录和其下所有文件的大小
+	du -h  指定某个目录和其下所有文件的大小
+	du -hs 仅显示指定目录的大小
 df //磁盘剩余 f-free
 	df 
 free //内存剩余
@@ -217,7 +218,7 @@ linux和windows换行格式转换：
 		 1、g++ -fPIC -c xxx.cpp -o xxx.o
 		 2、g++ -shared libxxx.so xxx.o
 	使用：
-		可以在文件头部extern 想要用到的静态库函数 编译时加上 -L[库文件路径] -lxxx，但运行时错误：找不到该动态库
+		可以在文件头部extern 想要用到的库函数 编译时加上 -L[库文件路径] -lxxx，但运行时错误：找不到该动态库
 		原因：链接器链接时被指定了动态库路径，但运行时的动态链接器并不知道动态库所在路径【它默认搜索LD_LIBRARY_PATH】
 		解决方法3种：
 		（1）将库复制到/lib下，运行 ldconfig命令，

@@ -1,3 +1,102 @@
+Nosql:
+	为什么要用Nosql？
+		大数据时代，一般的关系型数据库无法进行分析处理了，很多数据类型的存储不需要一个固定的格式，
+		可以很方便的横向扩展(即集群).
+		1、方便扩展
+		2、大数据量高性能(一秒写八万，读十一万，nosql的缓存记录级是一种细粒度的缓存，性能较高)
+		3、数据类型是多样的，不需要事先设计数据库，随取随用
+传统的关系型数据库区别：
+	1、结构化组织
+	2、结构化SQL
+	3、数据和关系都存储在单独的表中
+	4、操作和定义语言
+	5、严格的一致性
+	6、基础的事务
+Redis（Remote Dictionary Server )，即远程字典服务
+	是一个开源的使用ANSI C语言编写、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API
+redis：
+	C语言写的
+	不仅仅是数据
+	没有固定的查询语言
+	键值对存储、列存储、文档存储、图形数据库(社交关系)
+	最终一致性
+	CAP定理、BASE理论 (异地多活！)
+	内存存储、可持久化（rdb、aof）
+	效率高，用于高速缓存
+	发布订阅系统
+	地图信息分析
+	计数器
+	当作数据库、缓存、消息中间件MQ
+redis安装：
+	请先检查gcc的版本是否低于5，如果是请先升级，可以使用以下命令：
+	sudo yum install centos-release-scl
+	sudo yum install devtoolset-7-gcc*
+	scl enable devtoolset-7 bash
+	make
+redis-benchmark:
+	自带的压测工具
+redis:
+	默认十六个数据库，默认使用第一个
+	可以使用select n进行切换
+	清空当前数据库：flushdb
+	清空全部数据库：flushall
+单线程：
+	redis是很快的，基于内存操作，CPU不是redis性能瓶颈，redis的瓶颈是机器的内存和网络带宽。
+为什么单线程还这么快
+	redis将所有数据全部存放在内存中，不受硬盘IO速度的限制。
+	对于内存系统来说，单线程避免了不必要的上下文切换，不考虑锁问题，减少CPU的浪费
+	采用了多路IO复用模型
+服务器相关命令：
+	ping:
+		测试连接是否存活，存活返回PONG
+	echo:
+		打印一些内容
+	select:
+		选择数据库，redis数据库编号从0-15，可以任意选择一个
+	quit:
+		退出连接
+	dbsize:
+		返回当前数据库中key的数目
+	info:
+		获取服务器的信息和统计
+	monitor:
+		实时转储收到的请求
+	config get:
+		config get dir
+	flushdb:
+		删除当前选择数据库中所有的key
+	flushall:
+		删除所有数据库中所有的key
+常用命令：
+	keys:
+		返回满足给定pattern的所有key
+		keys *
+	exists:
+		exists hannan
+		确认一个key是否存在
+	del:
+		删除一个key
+		del hannan
+	expire:
+		设置一个key的过期时间
+		expire name 10（秒）
+	ttl:
+		ttl name
+		查看过期时间剩余  -2为已过期
+	move:
+		move name 1
+		将当前数据库中的key转移到其他数据库中,默认十六个数据库 0 - 15 
+	persist:
+		移除给定key的过期时间,使其过期
+		persist hannan
+	randomkey:
+		随机返回key空间的一个key
+	rename:
+		重命名key
+	type:
+		返回值的类型
+五大类型：
+	string、list、set、sorted set、hash
 string操作：
 	set:
 		set name hannannan
@@ -9,11 +108,11 @@ string操作：
 		set name 10 zhangdan
 		设置键值对，并指定此键值的有效期为10秒
 	setrange:
-		set name 8 gmail.com
-		将name对应的值的下标为8后的内容替换为gmail.com
+		set name 8 xxxx
+		将name对应的值的下标为8后的长度为strlen(xxx)的内容替换为xxxx
 	mset:
 		mset name1 hannan name2 zhangdan name3 tangyuan
-		一次设置多个键值对，失败一个都不设置
+		一次设置多个键值对，失败一个都不设置,原子性操作
 	msetnx:
 		一次设置多个键值对，如果存在返回0，回滚
 	get:
@@ -34,7 +133,7 @@ string操作：
 		对键对应得值做++操作，不是int返回错误，key不存在，则设值为1
 	incrby:
 		incrby age 5
-		加指定值
+		加指定值,或者说加一个指定步长
 	decr:
 		--操作
 		key不存在设为-1
@@ -125,7 +224,7 @@ set操作：
 		删除名为key的set中的元素
 		srem myset "one"
 	spop:
-		随即返回并删除一个元素
+		随机返回并删除一个元素
 		spop mylist
 	sdiff:
 		返回所有给定key与第一个key的差集
@@ -155,9 +254,9 @@ set操作：
 		测试是否是其元素
 		sismember myset member
 	srandmember:
-		随即返回一个元素，但不删除
+		随机返回一个元素，但不删除
 		srandmember myset
-sorted sets操作：
+sorted sets操作：//zset 有序集合
 	zadd:
 		添加元素
 		zadd myzset 1 "one"
@@ -171,7 +270,7 @@ sorted sets操作：
 		zincrby myzset 2 "one"
 	zrank:
 		返回member元素的排名，按score从小到大排序
-		zrank myzset "two"
+		zrank myzset "two"//two是元素值
 	zrevrank:
 		返回从大到小排序的排名
 		zrevrank myzset one
@@ -196,53 +295,230 @@ sorted sets操作：
 	zremrangebyscore:
 		删除集合中score在给定区间的元素
 		zremrangebyscore myzset 1 2
-常用命令：
-	keys:
-		返回满足给定pattern的所有key
-		keys *
-	exists:
-		exists hannan
-		确认一个key是否存在
-	del:
-		删除一个key
-		del hannan
-	expire:
-		设置一个key的过期时间
-		expire adde 10（秒）
-	move:
-		将当前数据库中的key转移到其他数据库中
-	persist:
-		移除给定key的过期时间,使其过期
-		persist hannan
-	randomkey:
-		随机返回key空间的一个key
-	rename:
-		重命名key
-	type:
-		返回值的类型
-服务器相关命令：
-	ping:
-		测试连接是否存活，存活返回PONG
-	echo:
-		打印一些内容
-	select:
-		选择数据库，redis数据库编号从0-15，可以任意选择一个
-	quit:
-		退出连接
-	dbsize:
-		返回当前数据库中key的数目
-	info:
-		获取服务器的信息和统计
-	monitor:
-		实时转储收到的请求
-	config get:
-		config get dir
-	flushdb:
-		删除当前选择数据库中所有的key
-	flushall:
-		删除所有数据库中所有的key
-	
+三种特殊类型：
+	geospatial、Hyperloglog、Bitmap
+geospatial：//地理位置，底层使用zset，可以使用zset命令操作geo
+	GEOADD://添加地理位置，北极和南极无法直接添加
+		geoadd china:city 120   30   beijing
+		        地图名    纬度 经度  名称
+	GEOPOS：//获取指定成员的地理位置
+		GEOPOS china:city chongqing
+	GEODIST://获取成员之间的距离 单位可以为 m km mi:英里 ft:英尺
+		GEODIST china:city beijing shanghai km
+	GEORADIUS：//获取某个点(维度 经度) 方圆 500km内的成员 顺便显示其经纬度 最多显示1个
+		GEORADIUS china:city 110 30 500 km withcoord count 1
+	GEORADIUSBYMEMBER：//获取某个成员方圆1000km的其他成员
+		GEORADIUSBYMEMBER china:city shanghai 1000 km
+	GEOHASH：//返回将二维经纬度转换为11位的字符串，字符串越接近则距离越近，现在用不到
+		GEOHASH china:city beijing
+	移除元素：
+		zrem china:city beijing
+	查看所有元素：
+		zrange china:city 0 -1
+Hyperloglog：基数统计
+	基数：两个集合中不重复的元素，有误差率
+	简介：网页的UV，一个人访问一个网站多次，但是还算做一个人
+	如果使用set，保存大量的用户ID，就会比较浪费内存。
+	使用Hyperlogloig，占用的内存就是固定的，只需要128kb的内存，但是有一定误差率。
+	PFADD：//添加元素
+		PFADD mykey a b a c d f e
+	PFCOUNT：//计算不重复的元素
+		PFCOUNT mykey
+	PFMERGE://合并两个集合
+		PFMERGE mykey mykey2
+	如果不允许容错，就使用set或其他数据结构
+Bitmap：//位存储
+	setbit：//设置某位(这里是0)为1或0
+		setbit sign 0 1
+	getbit://获取某位
+		getbit sign 0
+	bitcount://获取为1的个数
+		BITCOUNT sign 0 -1
+redis的基本的事务操作：
+	redis的事务不保证原子性，不存在隔离级别的概念，按照顺序执行一系列的命令。
+	单条命令是原子性的。
+	只有发起执行命令才会执行。
+	1、开始事务
+		Multi 
+	2、命令入队
+		例如set key1 111
+	--在执行事务之前可以放弃事务
+		discard
+	3、执行事务
+		exec
+	事务错误：
+		如果事务中语句有错误，那么所有命令都不会被执行
+		如果是运行时异常，其他命令正常执行
+redis实现乐观锁：
+	在事务之前执行
+		watch money//如果在事务exec前money发生变化，那么事务一定执行失败
+	事务：
+		multi
+		decrby money 20
+		indrby out 20
+		//此时另一个客户端修改了money
+		exec//那么事务执行失败
+	可以执行unwatch，放弃监视后再重新监视再执行事务即可。
+redis配置文件：
+	unit单位大小写不敏感
+	可以包含其他配置文件
+	网络：可以指定IP
+	port可以指定端口
+	通用配置：
+		daemonize no ：改为yes 让其后台运行
+		pidfile /var/run/redis_6379.pid  ：设置pid存放路径
+		loglevel notice  ：可以设置日志级别
+		logfile /var/log/redis/redis.log  ：日志的存放路径
+		databases 16  ：默认数据库数量
+		always-show-logo ：是否显示logo
+	快照：
+		在规定时间内执行了多少次操作，则会持久化到文件，.rdb,.aof文件
+		redis是内存数据库，如果没有持久化，那么如果断电则数据丢失
+		# 如果900s内，如果至少有一个key进行了修改，我们就进行持久化操作
+		save 900 1
+		# 如果300s内，如果至少10个key进行了修改，就进行持久化操作
+		save 300 10
+		# 如果60s内，如果至少10000个key进行了修改，就进行持久化操作
+		save 60 10000
+	# 如果持久化报错是否继续工作
+		stop-writes-on-bgsave-error yes
+	# 是否进行rdb文件压缩  会消耗cpu
+		rdbcompression yes
+	# 保存rdb文件时进行校验
+		rdbchecksum yes
+	# rdb文件保存的目录
+		dir /var/lib/redis
+	security下:可以设置密码
+		config set requirepass "2464"
+		auth 2464//用密码来登录使用redis
+	# 最大链接客户的上限
+		maxclients 10000
+	# 内存满了之后的策略
+		maxmemory-policy noeviction
+		noeviction: 不删除策略, 达到最大内存限制时, 如果需要更多内存, 直接返回错误信息。（默认值）
+		allkeys-lru: 所有key通用; 优先删除最近最少使用(less recently used ,LRU) 的 key。
+		volatile-lru: 只限于设置了 expire 的部分; 优先删除最近最少使用(less recently used ,LRU) 的 key。
+		allkeys-random: 所有key通用; 随机删除一部分 key。
+		volatile-random: 只限于设置了 expire 的部分; 随机删除一部分 key。
+		volatile-ttl: 只限于设置了 expire 的部分; 优先删除剩余时间(time to live,TTL) 短的key。
 
-
+		redis中并不会准确的删除所有键中最近最少使用的键，而是随机抽取maxmeory-samples个键，删除这三个键中最近最少使用的键。
+持久化
+rdb:
+	在指定的时间间隔将内存中的数据集快照写入磁盘，也就是进行内存快照，恢复时是将快照文件直接读到内存中。
+	redis会单独创建一个子进程来进行持久化，会先将数据写入到一个临时文件中，待持久化过程都结束了，在用这个临时文件替换上次持久化好的
+	文件，整个过程中，主进程是不进行任何IO操作的，这就保证了极高的性能，如果需要进行大规模数据的恢复，且对于数据恢复的完整性不是非常
+	敏感，那么RDB方式比AOF方式更加的高效，rdb的缺点是最后一次持久化后的数据可能丢失，redis默认使用的就是RDB。
+	rdb保存的文件时dump.rdb，生产环境应将该文件备份
+	Redis Save 命令执行一个同步保存操作，将当前 Redis 实例的所有数据快照(snapshot)以 RDB 文件的形式保存到硬盘。
+	触发规则：
+		1、save的规则满足的情况下，会自动触发
+		2、执行flushall命令，也会触发
+		3、退出redis，也会产生
+	如何恢复rdb文件？
+		将rdb文件放在redis命令所在目录下，此处就是 /，redis启动的时候会自动检查dump.rdb,恢复其中的数据！
+		127.0.0.1:6379> CONFIG GET dir
+		1) "dir"
+		2) "/"
+	优点：
+		适合大规模的数据恢复！
+		对数据的完整性要求不高，可以使用rdb
+	缺点：
+		需要一定的时间间隔进行操作，如果redis意外宕机，最后一次的修改数据就没有了
+		fork进程的时候会占用一定的内存空间
+aof:
+	配置文件的APPEND ONLY MODE栏下进行配置，redis默认不开启aof，使用rdb方式进行持久化
+	原理：将我们的所有写操作命令都记录下来(读操作不记录)，恢复的时候就把这个文件再重新执行一遍
+	开启：
+		appenonly yes #即可打开aof机制，重启生效，同时开启两种机制，重启优先选择aof文件
+	如果aof文件有问题，则redis启动不了，需要修复aof文件
+	redis-check-aof工具：
+		redis-check-aof --fix appendonly.aof//不加fix仅仅检测，加上会删除错误的命令，有容错率
+		此时重启就恢复了
+		# aof文件名字
+			appendfilename "appendonly.aof"
+		# 每秒同步:异步操作,每秒记录如果一秒内宕机,有数据丢失,是默认的同步策略  ,在该策略下,redis 在每个事件循环都要将 AOF
+		 缓冲区中的所有内容写入到 AOF 文件中，并且每隔一秒就要在子线程中对 AOF 文件进行一次同步,只不过整个过程都是异步的.
+		 从效率上看，该模式足够快。当发生故障停机时，只会丢失一秒钟的命令数
+			appendfsync everysec
+		# 每次修改同步:同步持久化 每次发生数据变更会被立即记录到磁盘  性能较差但数据完整性比较好在该策略下  Redis 
+		  在每个事件循环都要将 AOF 缓冲区中的所有内容写入到 AOF 文件，并且同步 AOF 文件，所以 always的效率是appendfsync
+		  选项三个值当中最差的一个，但从安全性来说，也是最安全的。当发生故障停机时，AOF 持久化也只会丢失一个事件循环中所产生的
+		  命令数.
+			appendfsync always
+		# 从不同步，在这种策略下，Redis 在每一个事件循环都要将 AOF 缓冲区中的所有内容写入到 AOF 文件。而 AOF   
+		  文件的同步由操作系统控制。这种模式下速度最快，但是同步的时间间隔较长，出现故障时可能会丢失较多数据。 
+			appendfsync no
+	优点：
+		每一次修改都同步(可配置)，文件的完整性比较好
+		每秒同步一次，可能会丢失一秒的数据
+		从不同步，效率是最高的
+	缺点：
+		相对于数据文件来说，aof远远大于rdb文件，修复的速度也比较慢
+		aof运行效率也要比rdb慢，所以redis默认使用rdb模式
+发布订阅：
+	redis发布订阅是一种消息通信模式：发送者发送消息，订阅者接收消息。
+	消息发布者发布消息到redis的队列，所有订阅者都收到消息
+	1	PSUBSCRIBE pattern [pattern ...]
+		订阅一个或多个符合给定模式的频道。
+	2	PUBSUB subcommand [argument [argument ...]]
+		查看订阅与发布系统状态。
+	3	PUBLISH channel message
+		将信息发送到指定的频道。
+	4	PUNSUBSCRIBE [pattern [pattern ...]]
+		退订所有给定模式的频道。
+	5	SUBSCRIBE channel [channel ...]
+		订阅给定的一个或多个频道的信息。
+	6	UNSUBSCRIBE [channel [channel ...]]
+		指退订给定的频道。
+主从复制：
+	读写分离，主机负责写请求，从机负责读请求
+	是指将一台redis服务器的数据，复制到其他的redis服务器。数据复制是单向的，由主到从。
+	主机可以写，从机只能读
+	作用：
+		数据冗余：主从复制实现了数据的热备份，是持久化之外的一种数据冗余方式
+	info replication:
+		查看redis主机信息
+	最少一主二从，主机一般不用动，从机配置：//使用命令配置，重启失效
+		slaveof 127.0.0.1 6379
+	如果主机宕机，则从机还是从机，数据未丢失，此时从机可以执行 slaveof no one 让自己变成主机，其他从机执行slaveof设置自己的主机。
+	如果从机宕机(并且是命令行设置为从机的)，重启则变成主机了。
+	使用配置文件配置，则是永久的。
+	从机启动成功后连接到master会发送一个sync同步命令，master将数据集命令传送给从机，并完成一次完全同步。
+哨兵模式：
+	当主机宕机后，主动重新投票选择设置主机//心跳包机制
+	此后，如果主机重新链接，那么会被设置为新的主机的从机
+	1、配置哨兵配置文件 sentinel.conf
+		sentinel monitor myredis 127.0.0.1 6379  1
+		哨兵     监视    名称    地址      端口  投票
+		1代表主机挂了，让从机投票来选举新的主机。
+	2、启动哨兵
+		redis-sentinel sentinel.conf
+	优点：
+		哨兵集群，基于主从复制模式，所有的主从配置优点都有
+		主从可以切换，故障可以转移，系统的可用性比较好
+		哨兵模式就是主从模式的升级，手动到自动，更加健壮
+	缺点：
+		redis不好在线扩容，集群容量一旦到达上限，在线扩容非常麻烦
+		实现哨兵模式的配置其实是很麻烦的，里面有很多选择，配置复杂
+缓存穿透：
+	key对应的数据在数据源并不存在，每次针对此key的请求从缓存获取不到，请求都会到数据源，从而可能压垮数据源。
+	比如用一个不存在的用户id获取用户信息，不论缓存还是数据库都没有，若黑客利用此漏洞进行攻击可能压垮数据库。
+	解决方案：
+		1、加一个布隆过滤器，将所有可能存在的数据哈希到一个足够大的bitmap中，一个一定不存在的数据会被 
+		   这个bitmap拦截掉，从而避免了对底层存储系统的查询压力。
+		2、如果数据不存在，仍然加一个空缓存，它的过期时间会很短，最长不超过五分钟
+缓存击穿：
+	key对应的数据存在，但在redis中过期，此时若有大量并发请求过来，这些请求发现缓存过期一般都会从后端DB加载数据
+	并回设到缓存，这个时候大并发的请求可能会瞬间把后端DB压垮。
+	解决办法：
+		1、设置热点数据不过期
+		2、加分布式锁，保证访问DB的线程不会太多，没有持有锁的线程等待。
+缓存雪崩：
+	当缓存服务器重启或者大量缓存集中在某一个时间段失效，这样在失效的时候，大量访问直接到DB会给后端系统(比如DB)带来很大压力。
+	解决方案：
+		异地多活，即集群
+		限流降级，加锁或队列控制写线程的数量
+		数据预热
 
 

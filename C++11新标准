@@ -1,0 +1,272 @@
+-----------------------------C++11--------------------------------------------------------------------------------
+std::nullptr:
+	新类型，将空指针和0区分开来，旧的NULL实际被定义为0，面对int和void*这样区分的重载函数时会区分不了该调用哪个。
+一致性初始化：
+	数组和容器都可以使用大括号进行初始化，但是如果精度降低或造成数值变动则报错。
+constexpr：
+	可用来让表达式核定于编译期
+RTTI：
+	运行时类型识别
+RAII：
+	资源申请即初始化机制(Resource Acquisition Is Initialization)
+	在使用资源的类中的构造函数中申请资源，然后使用，最终在析构函数中释放资源。
+	如果是在栈上生命的对象，离开作用域时会自动析构释放资源，但是如果是new出来的对象，还是需要调用delete
+智能指针：
+	std::auto_ptr C++98标准中的自动指针，不建议使用，C++11已将其声明为废弃的
+		auto_ptr 是 C++标准库提供的类模板 它可以帮助程序员自动管理用 new 表达式动态分配的单个对象 
+		不幸的是对用new表达式分配的数组管理(管理动态数组)没有类似的支持，不支持提供删除器 
+		我们不能用auto_ptr 存储数组 如果这样做了 结果将是未定义的
+		当 auto_ptr 对象的生命期结束时 动态分配的对象被自动释放
+		auto_ptr 对象的定义有下列三种形式
+		auto_ptr< type_pointed_to > identifier( ptr_allocated_by_new );
+		auto_ptr< type_pointed_to > identifier( auto_ptr_of_same_type );
+		auto_ptr< type_pointed_to > identifier;
+		例如：auto_ptr<int> p(new int(666));
+		当一个 auto_ptr 对象被用另一个 auto_ptr 对象初始化或赋值时 左边被赋值或初始化的对象就拥有了空闲存储区内底层对象的所有权 
+			而右边的 auto_ptr 对象则撤消所有责任 
+		声明一个auto_ptr:
+			auto_ptr<int> p;//没有指向任何对象，内部置0，如果对其解引用，发生未定义的行为。
+			使用p.get()返回底层指针：		int* pi = p.get();//对于普通指针直接测试是否为0即可。//仅仅返回底层指针
+			使用p.release()返回底层指针：   int* pa = p.release();//不仅返回底层指针，而且释放所有权。
+			可以auto_ptr<int> p2(p.release()),但不能使用get()//否则两个智能指针指向同一个对象！
+			定义之后，不能再用new表达式直接赋值：p=new int(666);//error
+			使用p.reset()设置底层指针： p.reset(new int(1024));//如果p原来指向一个字符串对象，则先删除。
+			在这种情况下 用字符串操作 assign()对原有的字符串对象重新赋值 比删除原有的字符串对象并重新分配第二个字符串对象更为有效
+				// 这种情况下 重置的更有效形式
+				// 用 string 的 assign() 设置新值
+				pstr_auto->assign( "Long-neck" );
+		不建议使用原因：
+			auto_ptr采用copy语义来转移指针资源，转移指针资源的所有权的同时将原指针置为NULL，即调用拷贝构造函数或者赋值函数后，
+			原有指针会被置NULL，这跟通常理解的copy行为是不一致的
+			(不会修改原数据)，而这样的行为在有些场合下不是我们希望看到的。例如参考《Effective STL》第8条，sort的快排实现中有
+			将元素复制到某个局部临时对象中，但对于auto_ptr，却将原元素置为null，这就导致最后的排序结果中可能有大量的null。
+			而且不支持提供删除器，只能用于单对象。
+	std::unique_ptr，用于替换auto_ptr，并且支持数组，支持下标操作
+		它是独占所指对象的。即不允许别的对象来管理当前对象所管理的资源，即不能调用拷贝构造函数和赋值运算符重载函数，是防拷贝的。
+		即将赋值运算符重载函数和拷贝构造函数声明私有的访问权限，并且只声明不定义。
+		它的功能结合了boost库的scope_ptr和scope_array，可以代理new创建的单个对象，也能代理new[]创建的数组对象。
+		与scope_ptr不同，它可以向原始指针一样进行比较，可以像shared_ptr一样定制删除器。
+		//声明需指定int[]
+		std::unique_ptr<int[]> up(new int[10]);up[0] = 666;
+		禁止了拷贝语义，提供移动语义
+		unique_ptr<string> upt(new string("lvlv"));
+		unique_ptr<string> upt1=std::move(upt);  //控制权限转移
+		如果unique_ptr 是个临时右值，编译器允许拷贝语义，例如从函数内部返回一个unique_ptr指针。
+		某个时刻只能有一个unique_ptr指向一个给定对象，当unique_ptr销毁时，指向的对象也销毁
+		定义时需要将其绑定到一个new返回的指针上//没有类似make_shared的函数返回unique_ptr
+			unique_ptr<T> p1(new int(42));
+			unique_ptr<T> p2;//可以指向一个double的unique_ptr
+			不支持拷贝和赋值操作
+			例外：我们可以拷贝或赋值一个将要被销毁的uniqued_ptr
+				例如：从函数返回 return unique_ptr<int>(new int (p));//函数参数 int p
+					  或返回一个局部对象的拷贝 return ret;//unique_ptr<int> ret(new int (p))
+		u.release();//放弃对指针的控制权，返回指针，将u置空
+		u.reset(q);//释放u所指的对象，若提供q则令u指向该对象
+		提供删除器：
+			unique_ptr<obj,delT> p (new obj,fcn);
+	std::shard_ptr  可以定制删除器，可以支持数组，但不支持下标操作
+		（1）shard_ptr允许赋值和拷贝，底层采用了引用计数，解决了auto_ptr 的浅拷贝问题。允许多个指针指向同一个对象。
+		（2）但是shard_ptr 也会产生一些问题：第一，引用计数可能会引起线程安全问题；第二，会产生循环引用的问题。
+			 循环引用问题是由weak_ptr和shard_ptr搭配解决的
+			 例如双向链表，shared_ptr<T*> ap(new Node),bp(new Node);//使用shared_ptr指向两个节点
+			 		       ap->next = bp;bp->pre = ap;//使其形成循环，此时每个shared_ptr的引用计数都是2，退出作用域时不会释放资源
+			 使用weak_ptr解决：将Node的pre指针和weak_ptr指针声明为 weak_ptr类型的即可。
+		（3）shared_ptr不直接支持管理动态数组，如果希望它能够管理一个动态数组，必须提供自定义的删除器。由于这个特性，我们无法通过
+			 shared_ptr使用下标运算符，并且不支持指针的算术运算。这个时候就需要用的get去获得一个常规指针，然后利用它来访问数组元素。
+		shared_ptr<类型> p;//可以指向某种指定类型	
+		p.get();			//返回p中保存得指针(内置指针)，不能delete该指针
+							不要使用get初始化另一个智能指针或给另一个智能指针赋值
+		p.swap(q);			//交换指针
+		make_shared<T>(args);//返回一个shared_ptr,指向args初始化的对象
+		shared_ptr<T>p(q);	//拷贝，递增q的计数器
+		p=q;				//递减p的计数，递增q的计数
+		p.unique();			//若p.use_count()为1，返回true
+		p.use_count();		//返回与p共享对象的智能指针的数量
+		引用计数:每当有新的指针指向自身指向的对象时递增，被赋予新值或离开作用域时递减为零时自动释放所指向的对象
+		接受指针参数的智能指针构造函数是explicit的：
+			shared_ptr<int> p1=new int(0)；//错误，不能将内置指针隐式转换为智能指针
+			shared_ptr<int> p2(new int(0));//直接初始化可以
+			shared_ptr<int> p3(q);//p管理内置指针q所指向的对象
+		智能指针也可以绑定到其他类型的资源的指针上：//非动态内存普通指针
+			但是需要提供自己的delete操作来释放资源
+			shared_ptr<T> p(q,d);//q必须能转换为T*,d代替delete
+		p.reset();//唯一指向对象的指针则释放
+		p.reset(q);//令p指向q
+		p.reset(q,d);//调用d来释放q
+	std::weak_ptr
+		 weak_ptr是为配合shared_ptr而引入的一种智能指针来协助shared_ptr工作，它可以从一个shared_ptr或另一个weak_ptr对象构造，它的
+		 构造和析构不会引起引用记数的增加或减少(本来是一，拷贝或赋值后还是一)。没有重载*和->但可以使用lock获得一个
+		 可用的shared_ptr对象。
+	boost.smart_ptr库提供六种智能指针，速度与原始指针相差无几，都是异常安全的(要求类型T的析构函数不能抛出异常)
+	boost::scoped_ptr
+		scope_ptr的所有权更加严格，不能转让，一旦获取了对象的管理权，就无法再从它那里取回来
+		只希望在本作用域中使用，不希望被转让。
+		不支持拷贝和赋值，可以返回底层指针，但是不能对其调用delete，否则析构时再次释放，发生未定义行为。
+		默认仅支持与C++11的nullptr进行比较
+	boost::scoped_array   除非性能要求，且不支持标准库，不建议使用
+		相当于C++11标准中管理数组对象用法的unique_ptr
+		因为仅管理数组，所以构造函数接受的指针必须是new[]的结果
+		没有解引用和箭头操作符重载，因为scope_array持有的不是一个普通指针
+		析构默认调用delete[]，支持下标操作
+		//声明只需要类型
+		std::scoped_array<int> sa(new int[10]);up[0] = 666;
+		不提供指针运算，例如*(sa+1) = 666;
+	boost::shared_ptr 已经添加到C++11标准中了
+		是引用计数型的智能指针，可以自由拷贝赋值，当引用计数为0才删除动态分配的对象
+		可以安全地放到标准容器中，是STL容器中存储指针的最标准解法
+		可以使用工厂函数：//传递多个参数给对应的构造函数
+		auto sp = make_shared<vector<int>>(6,6);
+	boost::shared_array
+		类似shared_array,包装了new[]操作符在堆上分配的动态数组
+	boost::weak_ptr
+		弱引用，同std::weak_ptr
+	boost::intrusive_ptr
+decltype:
+	从表达式的类型推断出要定义的变量的类型，但不用表达式的值初始化变量
+	//只用类型不用值
+	//顶层底层const都不忽略
+	引用：int &r=42，*p=&42;
+		decltype(r) a;  //a是一个int &
+		decltype(r+0) b;//b是一个int
+	解引用时，decltype(*p)返回引用类型
+	括号：编译器把它当作表达式，对表达式取类型，返回引用 
+		int i=0;
+		decltype((i)) c=0;//c是int &,绝对是引用
+		decltype(i) d;	  //d是int
+noexcept:
+	旧的标准是：throw();加在函数后表明不会抛出异常
+	C++11标准：加在函数声明后(const以及引用之后，或final、override、=0之前)
+			   表明该函数不会抛出异常
+    如果不守规矩，还是抛出异常，那么就会调用terminate退出
+    当做运算符使用：
+    	noexcept(e);//当e调用的所有函数都做了不抛出说明并且本身不含有throw语句时为true
+    				否则为false
+    指针：做了不抛出异常声明，则该指针只能指向不抛出异常的函数
+    虚函数：如果一个虚函数承诺不会抛出异常，那么后续派生出来的虚函数也必须做出同样的承诺
+可变形参：
+	initializer_list<int> lint：
+		void f(initializer_list<string> ls)
+		{
+			for(auto elem:ls)
+			{
+				cout<<elem<<endl;
+			}
+		}
+	调用：f({"wo","ni","ma"})
+		类似vector，但值永远是常量值
+	省略符形参：
+		void f(...)
+返回列表：
+	vector<string> f()
+	{
+		return {"wo","ni","ma"};
+	}
+标准array: c++11
+	固定大小，不能删除和插入，可以通过下标修改成员值
+	array<int 42> a;//保存42个int的数组，必须有大小
+	内置数组类型不能进行拷贝或对象赋值操作，但标准array可以
+	例如：array<int,42> b=a;//类型匹配就合法
+	不允许花括号包围的值列表进行赋值//C++11支持
+=default:
+	将拷贝控制成员定义为=default来显式要求编译器生成合成的版本//隐式声明内联
+	如果不希望合成的是内联，则只对成员的类外定义使用=default即可
+=delete：
+	定义删除的函数：//新标准
+		NoCopy(const NoCopy&)=delete;//阻止拷贝
+		NoCopy &operator=(const NoCopy&)=delete;//阻止赋值
+随机数：
+	随机数引擎：类型，生成随机无符号整数序列
+	随机数分布：类型，使用引擎返回服从特定概率分布的随机数
+	C++程序不应该使用库函数rand，而应该使用default_random_engine类和恰当的分布类对象
+	例如：default_random_engine e;
+		  for(int i=0;i<n;i++)
+		  	cout<<e()<<endl;//每次调用生成新随机数
+		或者使用u作为随机数源来生成指定范围内并服从均匀分布的值
+		  uniform_int_distribution<unsigned> u(0,9);
+		  default_random_engine e;
+		  for(int i=0;i<n;i++)
+		  	cout<<u(e)<<endl;//每次调用生成新随机数
+override：
+	如果派生类重写父类的虚函数，但是参数类型略有变化，比如int改为long，编译器会将其当作重载，没有实现想要的多态效果
+	可以在重写的虚函数后边加上override关健字
+	防止把本来想重写的虚函数声明成了重载。同时在阅读代码时如果看到函数声明后加了此关键字就能立马知道此函数是重写了基类虚函数。
+	保证重写虚函数的正确性的同时也提高了代码可读性。
+final:
+	限定某个类不能被继承或某个虚函数不能被重写。如果修饰函数只能修饰虚函数，且要放到类或函数后面。
+noexcept():
+	noexcept关键字放在函数后声明保证不会抛出异常，()内可放表达式，转型为bool，true标识不会抛出异常，false标识可能抛出异常
+	delete函数和析构函数默认是noexcept(true)的
+就地初始化：
+	可在类中直接使用=和{}进行非静态成员的初始化，在C++98中只有const static变量才能就地初始化
+	但对于静态非const成员，还是需要到头文件以外去定义它，这会保证编译时，类的静态成员的定义最后只存在一个目标文件中。
+sizeof：
+	可以对类的非静态成员使用，C++98中sizeof只能对类的static const变量使用如下方式
+	cout<<sizeof(类名::成员变量)<<endl;
+firend:
+	声明一个类为另一个类的友元时，无须再加class，这样可以为类模板声明友元了。
+	class P;
+	template<typename T> class PP{firend T;};
+	PP<P> P1;
+模板函数可以指定默认参数了//需要遵循从右往左
+	template<typename T1,typename T2 = int>
+	void test(){}
+继承构造函数：
+	class A{好几个构造函数};
+	class B{using A::A;}
+	继承父类的构造函数，不必再重新写基本相同的代码，派生类新的成员需要就地初始化或其他方法初始化
+	一旦使用了继承构造函数，那么编译器不会再为类生成默认的构造函数了
+委派构造函数：
+	在初始化列表中调用的其他版本的构造函数
+	委派函数要给成员变量赋初值，则初始化必须放在函数体内
+	委托构造函数：
+	使用它所属类的其他构造函数执行它自己的初始化过程
+	A() : A("",0,0);//默认构造函数使用了有三个参数的构造函数
+移动语义：
+	将临时对象的资源移动给其他对象
+lambda:
+	目的是为了简化仿函数的使用
+move移动语义：
+	std::move(para)无条件地把它的参数转换成一个右值
+完美转发：
+	右值引用类型是独立于值的，一个右值引用参数作为函数的形参，在函数内部再转发该参数的时候它已经变成一个左值，并不是他原来的类型。
+	需要一种方法能够按照参数原来的类型转发到另一个函数，这种转发类型称为完美转发
+forward://用于完美转发
+	只在特定条件满足的情况下执行这个转换
+	std::move无条件转换到右值。就其本身而言，它没有move任何东西。
+	std::forward只有在它的参数绑定到一个右值上的时候，它才转换它的参数到一个右值。
+	std::move和std::forward在运行期都没有做任何事情。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

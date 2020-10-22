@@ -5,6 +5,14 @@ strace:
 	默认输出设备是STDERR
 	strace -T ./a.out 显示调用时间
 	strace -p pid 追踪任意进程
+内存泄漏检查工具使用：读作：外奥各润特
+	valgrind --tool=memcheck --leak-check=full --show-reachable=yes --trace-children=yes   ./a.out
+	    --tool=memcheck默认选项，标识使用memcheck工具
+		--leak-check=full指的是完全检查内存泄漏，
+		--show-reachable=yes是显示内存泄漏的地点
+		--trace-children=yes是跟入子进程。
+		如果程序是会正常退出的程序，那么当程序退出的时候valgrind自然会输出内存泄漏的信息。如果程序是个守护进程
+		我们只要在别的终端下杀死memcheck进程 #killall memcheck
 gdb:
 	编译时加上 -g 否则看不见程序的函数名，变量名
 	启动：gdb a.out 或 gdb a.out core 或gdb a.out 1234（进程ID）
@@ -14,6 +22,7 @@ gdb:
 	l(list):列出源码
 	b 15: 在15行设置断点
 	b func:在函数func处设置断点
+	b xx.cpp:20  :在某个文件的第20行设置断点
 	start:从第一行开始执行
 	until 10:执行到某一行停下
 	continue:继续往下执行
@@ -27,6 +36,7 @@ gdb:
 	undislpay x:取消，使用编号
 	n(next):单句执行
 	p i:打印相关值
+	set 变量 值 :设置变量的值
 	ptype x:打印x的类型
 	bt:查看函数的堆栈
 	where: 查看函数堆栈
@@ -49,6 +59,36 @@ gdb分析coredump文件：#该文件为服务不能正常响应时的操作系�
 	或 gdb a.out
 	   执行run//运行到出错的地方
 	where 显示调用过程
+用gdb查看内存
+	格式: x /nfu <addr>
+	说明
+	x 是 examine 的缩写
+	n表示要显示的内存单元的个数
+		可自己指定
+	f表示显示方式, 可取如下值
+		x 按十六进制格式显示变量。
+		d 按十进制格式显示变量。
+		u 按十进制格式显示无符号整型。
+		o 按八进制格式显示变量。
+		t 按二进制格式显示变量。
+		a 按十六进制格式显示变量。
+		i 指令地址格式
+		c 按字符格式显示变量。
+		f 按浮点数格式显示变量。
+	u表示一个地址单元的长度，可取值：
+		b表示单字节，
+		h表示双字节，
+		w表示四字节，
+		g表示八字节
+	Format letters are o(octal), x(hex), d(decimal), u(unsigneddecimal),
+	t(binary), f(float), a(address), i(instruction), c(char) ands(string).
+	Size letters are b(byte), h(halfword), w(word), g(giant, 8bytes)
+	举例
+		x/3uh buf
+		表示从内存地址buf读取内容，
+		h表示以双字节为一个单位，
+		3表示三个单位，
+		u表示按十六进制显示
 查看core文件生成位置：
 	cat /proc/sys/kernel/core_pattern
 查看core文件头信息：
@@ -74,10 +114,10 @@ ps:
 		T：停止
 		Z：僵死
 其他状态还包括
-W:无驻留页
-<:优先级高的进程
-N:优先级较低的进程
-L:有些页被锁进内存
-s:进程的领导者
-l:多进程的
-+:位于后台的进程组
+		W:无驻留页
+		<:优先级高的进程
+		N:优先级较低的进程
+		L:有些页被锁进内存
+		s:进程的领导者
+		l:多进程的
+		+:位于后台的进程组
